@@ -22,11 +22,24 @@
         theme: {
           extend: {
             colors: {
-              'brand-primary': '#10b981', // emerald-500
-              'brand-secondary': '#059669', // emerald-600
-              'brand-dark': '#1f2937', // gray-800
-              'brand-light': '#f9fafb', // gray-50
-              'brand-accent': '#f59e0b', // amber-500
+              // Cores base do tema, agora referenciando variáveis CSS
+              'brand-primary': 'var(--color-brand-primary)',
+              'brand-secondary': 'var(--color-brand-secondary)',
+              'brand-dark': 'var(--color-brand-dark)',
+              'brand-light': 'var(--color-brand-light)',
+              'brand-accent': 'var(--color-brand-accent)',
+              'bg-default': 'var(--color-bg-default)',
+              'bg-card': 'var(--color-bg-card)',
+              'bg-input': 'var(--color-bg-input)',
+              'border-card': 'var(--color-border-card)',
+              'border-input': 'var(--color-border-input)',
+              'text-default': 'var(--color-text-default)',
+              'text-muted': 'var(--color-text-muted)',
+              'text-heading': 'var(--color-text-heading)',
+              'text-success': 'var(--color-text-success)',
+              'text-danger': 'var(--color-text-danger)',
+              'text-warning': 'var(--color-text-warning)',
+              'text-info': 'var(--color-text-info)',
             },
             keyframes: {
               'fade-in-up': {
@@ -47,6 +60,32 @@
         },
       }
     </script>
+
+    <!-- Variáveis CSS padrão para o tema inicial (default-dark) -->
+    <style>
+      :root {
+        --color-brand-primary: #10b981;
+        --color-brand-secondary: #059669;
+        --color-brand-dark: #1f2937;
+        --color-brand-light: #f9fafb;
+        --color-brand-accent: #f59e0b;
+        --color-bg-default: #1f2937;
+        --color-bg-card: #374151;
+        --color-bg-input: #4b5563;
+        --color-border-card: #4a5568;
+        --color-border-input: #6b7280;
+        --color-text-default: #f9fafb;
+        --color-text-muted: #d1d5db;
+        --color-text-heading: #f9fafb;
+        --color-text-success: #34d399;
+        --color-text-danger: #ef4444;
+        --color-text-warning: #fbbf24;
+        --color-text-info: #60a5fa;
+      }
+      body {
+        background-color: var(--color-bg-default); /* Garante que o body use a cor de fundo do tema */
+      }
+    </style>
 
     <!-- Import Map -->
     <script type="importmap">
