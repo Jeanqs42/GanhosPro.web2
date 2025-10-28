@@ -58,8 +58,8 @@ const AppLayout: React.FC = () => {
   };
 
   return (
-    <div className="flex flex-col h-screen font-sans">
-      <main className="flex-grow overflow-y-auto bg-bg-default p-4 pb-20">
+    <div className="flex flex-col h-screen font-sans bg-bg-default text-text-default"> {/* Usando classes de tema */}
+      <main className="flex-grow overflow-y-auto p-4 pb-20">
         <Routes>
           <Route path="/" element={<Dashboard records={records} settings={settings} addOrUpdateRecord={addOrUpdateRecord} deleteRecord={deleteRecord} isPremium={isPremium} />} />
           <Route path="/history" element={<History records={records} deleteRecord={deleteRecord} settings={settings} />} />
@@ -67,24 +67,24 @@ const AppLayout: React.FC = () => {
           <Route path="/premium" element={<Premium records={records} settings={settings} isPremium={isPremium} setIsPremium={setIsPremium} />} />
         </Routes>
       </main>
-      <footer className="fixed bottom-0 left-0 right-0 bg-bg-card border-t border-border-card shadow-lg">
+      <footer className="fixed bottom-0 left-0 right-0 bg-bg-card border-t border-border-card shadow-lg"> {/* Usando classes de tema */}
         <nav className="flex justify-around items-center h-16">
-          <NavLink end to="/app" className={({ isActive }) => `flex flex-col items-center justify-center w-full text-xs transition-colors ${isActive ? 'text-brand-primary' : 'text-text-muted hover:text-brand-primary'}`} aria-label="Ir para Início">
+          <NavLink end to="/app" className={({ isActive }) => `flex flex-col items-center justify-center w-full text-xs transition-colors ${isActive ? 'text-brand-primary' : 'text-text-muted hover:text-brand-primary'}`} aria-label="Ir para Início"> {/* Usando classes de tema */}
             <Home size={24} />
             <span>Início</span>
           </NavLink>
-          <NavLink to="/app/history" className={({ isActive }) => `flex flex-col items-center justify-center w-full text-xs transition-colors ${isActive ? 'text-brand-primary' : 'text-text-muted hover:text-brand-primary'}`} aria-label="Ir para Histórico">
+          <NavLink to="/app/history" className={({ isActive }) => `flex flex-col items-center justify-center w-full text-xs transition-colors ${isActive ? 'text-brand-primary' : 'text-text-muted hover:text-brand-primary'}`} aria-label="Ir para Histórico"> {/* Usando classes de tema */}
             <Database size={24} />
             <span>Histórico</span>
           </NavLink>
-           <NavLink to="/app/premium" className={({ isActive }) => `flex flex-col items-center justify-center w-full text-xs transition-colors ${isActive ? 'text-brand-primary' : 'text-text-muted hover:text-brand-primary'}`} aria-label="Ir para Premium">
+           <NavLink to="/app/premium" className={({ isActive }) => `flex flex-col items-center justify-center w-full text-xs transition-colors ${isActive ? 'text-brand-primary' : 'text-text-muted hover:text-brand-primary'}`} aria-label="Ir para Premium"> {/* Usando classes de tema */}
              <div className="relative">
-              <Crown size={24} className={isPremium ? 'text-text-warning' : 'text-brand-accent'} />
-              {!isPremium && <span className="absolute -top-2 -right-2 bg-brand-accent text-white text-[10px] font-bold px-1.5 py-0.5 rounded-full">PRO</span>}
+              <Crown size={24} className={isPremium ? 'text-yellow-400' : 'text-brand-accent'} />
+              {!isPremium && <span className="absolute -top-2 -right-2 bg-brand-accent text-gray-900 text-[10px] font-bold px-1.5 py-0.5 rounded-full">PRO</span>} {/* Mantido text-gray-900 para contraste */}
              </div>
             <span>Premium</span>
           </NavLink>
-          <NavLink to="/app/settings" className={({ isActive }) => `flex flex-col items-center justify-center w-full text-xs transition-colors ${isActive ? 'text-brand-primary' : 'text-text-muted hover:text-brand-primary'}`} aria-label="Ir para Ajustes">
+          <NavLink to="/app/settings" className={({ isActive }) => `flex flex-col items-center justify-center w-full text-xs transition-colors ${isActive ? 'text-brand-primary' : 'text-text-muted hover:text-brand-primary'}`} aria-label="Ir para Ajustes"> {/* Usando classes de tema */}
             <SettingsIcon size={24} />
             <span>Ajustes</span>
           </NavLink>

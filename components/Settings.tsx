@@ -1,9 +1,10 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import toast from 'react-hot-toast';
-import { Save, Info, Calculator, Droplet, Zap, Blend, PlusCircle, Car, Wrench, Shield, FileText, Route, Crown, Loader2 } from 'lucide-react';
+import { Save, Info, Calculator, Droplet, Zap, Blend, PlusCircle, Car, Wrench, Shield, FileText, Route, Crown, Loader2, Palette } from 'lucide-react';
 import { AppSettings } from '../types';
-import { useLocalStorage } from '../hooks/useLocalStorage'; // Importar useLocalStorage
+import { useLocalStorage } from '../hooks/useLocalStorage';
+import { useTheme } from '../src/hooks/useTheme'; // Caminho corrigido
 
 interface SettingsProps {
   settings: AppSettings;
@@ -13,10 +14,10 @@ interface SettingsProps {
 
 const InputField: React.FC<{ icon?: React.ReactNode; label: string; helper?: string; id: string; value: string; onChange: (e: React.ChangeEvent<HTMLInputElement>) => void; placeholder: string; }> = ({ icon, label, helper, id, value, onChange, placeholder }) => (
     <div className="mb-3">
-        <label htmlFor={id} className="flex items-center text-sm font-medium text-gray-300 mb-1">
+        <label htmlFor={id} className="flex items-center text-sm font-medium text-text-muted mb-1">
             {icon}
             <span className={icon ? "ml-2" : ""}>{label}</span>
-            {helper && <span className="ml-1 text-xs text-gray-400">({helper})</span>}
+            {helper && <span className="ml-1 text-xs text-text-muted">({helper})</span>}
         </label>
         <input
             id={id}
@@ -24,7 +25,7 @@ const InputField: React.FC<{ icon?: React.ReactNode; label: string; helper?: str
             value={value}
             onChange={onChange}
             placeholder={placeholder}
-            className="w-full bg-gray-700 border border-gray-600 rounded-lg px-4 py-2 text-white placeholder-gray-400 focus:ring-2 focus:ring-brand-primary focus:outline-none transition"
+            className="w-full bg-bg-card border border-border-card rounded-lg px-4 py-2 text-text-default placeholder-text-muted focus:ring-2 focus:ring-brand-primary focus:outline-none transition"
             step="0.01"
             min="0"
             aria-label={label}
@@ -34,8 +35,9 @@ const InputField: React.FC<{ icon?: React.ReactNode; label: string; helper?: str
 
 const Settings: React.FC<SettingsProps> = ({ settings, setSettings, isPremium }) => {
   const navigate = useNavigate();
+  const { theme, setTheme, themes } = useTheme();
   const [costPerKm, setCostPerKm] = useState<string>(settings.costPerKm.toString());
-  const [activeTab, setActiveTab] = useLocalStorage<'combustion' | 'hybrid' | 'electric'>('settings_active_tab', 'combustion'); // Persistir aba ativa
+  const [activeTab, setActiveTab] = useLocalStorage<'combustion' | 'hybrid' | 'electric'>('settings_active_tab', 'combustion');
 
   // Fuel calculator states
   const [refuelCost, setRefuelCost] = useLocalStorage<string>('settings_refuel_cost', '');
@@ -146,8 +148,28 @@ const Settings: React.FC<SettingsProps> = ({ settings, setSettings, isPremium })
     <div className="max-w-md mx-auto">
       <h1 className="text-2xl font-bold text-center mb-6 text-brand-primary">Ajustes</h1>
       
-      <div className="bg-gray-800 p-6 rounded-lg shadow-xl mb-6">
-        <label htmlFor="costPerKm" className="block text-sm font-medium text-gray-300 mb-2">
+      {/* Seletor de Tema */}
+      <div className="bg-bg-card p-6 rounded-lg shadow-xl mb-6">
+        <label htmlFor="theme-select" className="flex items-center text-sm font-medium text-text-muted mb-2">
+          <Palette size={18} className="mr-2" /> Tema do Aplicativo
+        </label>
+        <select
+          id="theme-select"
+          value={theme.name}
+          onChange={(e: React.ChangeEvent<HTMLSelectElement>) => setTheme(e.target.value)}
+          className="w-full bg-bg-card border border-border-card rounded-lg px-4 py-2 text-text-default focus:ring-2 focus:ring-brand-primary focus:outline-none transition"
+          aria-label="Selecionar tema do aplicativo"
+        >
+          {themes.map((t) => (
+            <option key={t.name} value={t.name}>
+              {t.displayName}
+            </option>
+          ))}
+        </select>
+      </div>
+
+      <div className="bg-bg-card p-6 rounded-lg shadow-xl mb-6">
+        <label htmlFor="costPerKm" className="block text-sm font-medium text-text-muted mb-2">
           Custo por KM (R$)
         </label>
         <input
@@ -156,7 +178,7 @@ const Settings: React.FC<SettingsProps> = ({ settings, setSettings, isPremium })
           value={costPerKm}
           onChange={(e: React.ChangeEvent<HTMLInputElement>) => setCostPerKm(e.target.value)}
           placeholder="Ex: 0.75"
-          className="w-full bg-gray-700 border border-gray-600 rounded-lg px-4 py-2 text-white placeholder-gray-400 focus:ring-2 focus:ring-brand-primary focus:outline-none transition"
+          className="w-full bg-bg-card border border-border-card rounded-lg px-4 py-2 text-text-default placeholder-text-muted focus:ring-2 focus:ring-brand-primary focus:outline-none transition"
           step="0.01"
           min="0"
           aria-label="Custo por KM"
@@ -167,29 +189,29 @@ const Settings: React.FC<SettingsProps> = ({ settings, setSettings, isPremium })
         </button>
       </div>
 
-      <div className="bg-gray-800 p-4 rounded-lg shadow-xl mb-6">
-            <h2 className="text-lg font-semibold text-center mb-4 flex items-center justify-center text-brand-light"> {/* Corrigido para text-brand-light */}
+      <div className="bg-bg-card p-4 rounded-lg shadow-xl mb-6">
+            <h2 className="text-lg font-semibold text-center mb-4 flex items-center justify-center text-text-heading">
                 <Calculator size={20} className="mr-2 text-brand-accent" />
                 Não sabe seu custo? Calcule aqui!
             </h2>
-            <div className="flex border-b border-gray-700 mb-4">
+            <div className="flex border-b border-border-card mb-4">
                 <button 
                     onClick={() => setActiveTab('combustion')} 
-                    className={`flex-1 py-2 text-sm font-medium flex items-center justify-center transition-colors ${activeTab === 'combustion' ? 'text-brand-primary border-b-2 border-brand-primary' : 'text-gray-400 hover:text-white'}`}
+                    className={`flex-1 py-2 text-sm font-medium flex items-center justify-center transition-colors ${activeTab === 'combustion' ? 'text-brand-primary border-b-2 border-brand-primary' : 'text-text-muted hover:text-text-default'}`}
                     aria-label="Selecionar calculadora de combustão"
                 >
                     <Droplet size={16} className="mr-2" /> Combustão
                 </button>
                 <button 
                     onClick={() => setActiveTab('hybrid')}
-                    className={`flex-1 py-2 text-sm font-medium flex items-center justify-center transition-colors ${activeTab === 'hybrid' ? 'text-brand-primary border-b-2 border-brand-primary' : 'text-gray-400 hover:text-white'}`}
+                    className={`flex-1 py-2 text-sm font-medium flex items-center justify-center transition-colors ${activeTab === 'hybrid' ? 'text-brand-primary border-b-2 border-brand-primary' : 'text-text-muted hover:text-text-default'}`}
                     aria-label="Selecionar calculadora de híbrido"
                 >
                     <Blend size={16} className="mr-2" /> Híbrido
                 </button>
                 <button 
                     onClick={() => setActiveTab('electric')}
-                    className={`flex-1 py-2 text-sm font-medium flex items-center justify-center transition-colors ${activeTab === 'electric' ? 'text-brand-primary border-b-2 border-brand-primary' : 'text-gray-400 hover:text-white'}`}
+                    className={`flex-1 py-2 text-sm font-medium flex items-center justify-center transition-colors ${activeTab === 'electric' ? 'text-brand-primary border-b-2 border-brand-primary' : 'text-text-muted hover:text-text-default'}`}
                     aria-label="Selecionar calculadora de elétrico"
                 >
                     <Zap size={16} className="mr-2" /> Elétrico
@@ -199,7 +221,7 @@ const Settings: React.FC<SettingsProps> = ({ settings, setSettings, isPremium })
             <div className="animate-fade-in">
                 {activeTab === 'combustion' && (
                     <>
-                        <div className="bg-gray-700/50 p-3 rounded-lg text-xs text-center text-gray-300 mb-4">
+                        <div className="bg-bg-card/50 p-3 rounded-lg text-xs text-center text-text-muted mb-4">
                         Use os dados do seu último abastecimento para um cálculo preciso.
                         </div>
                         <InputField label="Valor do Abastecimento (R$)" id="refuelCost" value={refuelCost} onChange={(e: React.ChangeEvent<HTMLInputElement>) => setRefuelCost(e.target.value)} placeholder="Ex: 250.00" />
@@ -225,8 +247,8 @@ const Settings: React.FC<SettingsProps> = ({ settings, setSettings, isPremium })
 
             {isPremium ? (
                 <div className="animate-fade-in">
-                    <hr className="border-gray-600 my-6" />
-                    <h3 className="text-lg font-semibold text-center mb-4 flex items-center justify-center text-brand-light"> {/* Corrigido para text-brand-light */}
+                    <hr className="border-border-card my-6" />
+                    <h3 className="text-lg font-semibold text-center mb-4 flex items-center justify-center text-text-heading">
                         <PlusCircle size={20} className="mr-2 text-brand-accent" />
                         Adicionar Custos Fixos e Variáveis
                     </h3>
@@ -236,14 +258,14 @@ const Settings: React.FC<SettingsProps> = ({ settings, setSettings, isPremium })
                         <InputField icon={<Shield size={18}/>} label="Seguro" id="insurance" value={advancedCosts.insurance} onChange={handleAdvancedCostChange} placeholder="Ex: 250" helper="mensal"/>
                         <InputField icon={<FileText size={18}/>} label="Impostos e Licenciamento" id="taxes" value={advancedCosts.taxes} onChange={handleAdvancedCostChange} placeholder="Ex: 1800" helper="anual"/>
                         <InputField icon={<PlusCircle size={18}/>} label="Outros Custos" id="others" value={advancedCosts.others} onChange={handleAdvancedCostChange} placeholder="Ex: 100" helper="média mensal"/>
-                        <hr className="border-gray-600 my-2" />
+                        <hr className="border-border-card my-2" />
                         <InputField icon={<Route size={18}/>} label="Média de KMs Rodados" id="monthlyKm" value={advancedCosts.monthlyKm} onChange={handleAdvancedCostChange} placeholder="Ex: 5000" helper="por mês"/>
                     </div>
                 </div>
             ) : (
-                <div className="mt-6 bg-gray-900/50 p-4 rounded-lg text-center">
+                <div className="mt-6 bg-bg-card/50 p-4 rounded-lg text-center">
                     <p className="font-bold text-yellow-300 flex items-center justify-center"><Crown size={18} className="mr-2"/> Função Premium</p>
-                    <p className="text-sm text-gray-300 mt-2 mb-3">
+                    <p className="text-sm text-text-muted mt-2 mb-3">
                     Tenha um cálculo completo adicionando custos de manutenção, seguro e mais para um R$/KM ultra preciso.
                     </p>
                     <button onClick={() => navigate('/premium')} className="bg-yellow-500 hover:bg-yellow-600 text-gray-900 font-bold py-2 px-4 rounded-lg text-sm transition-colors" aria-label="Desbloquear com Premium">

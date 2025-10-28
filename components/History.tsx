@@ -28,9 +28,9 @@ const History: React.FC<HistoryProps> = ({ records, deleteRecord, settings }) =>
 
   const handleDelete = (id: string, recordDate: string) => {
     toast((t: any) => (
-        <div className="flex flex-col items-center text-center p-2 bg-bg-card text-text-default rounded-lg shadow-lg">
-            <h3 className="font-bold text-lg mb-2 text-text-danger">Confirmar Exclusão</h3>
-            <p className="text-sm mb-4">
+        <div className="flex flex-col items-center text-center p-2">
+            <h3 className="font-bold text-lg mb-2 text-red-400">Confirmar Exclusão</h3>
+            <p className="text-sm mb-4 text-text-default"> {/* Usando classes de tema */}
                 Tem certeza que deseja apagar o registro do dia {new Date(recordDate).toLocaleDateString('pt-BR', { timeZone: 'UTC' })}?
                 <br/>
                 <span className="font-bold">Esta ação não pode ser desfeita.</span>
@@ -38,7 +38,7 @@ const History: React.FC<HistoryProps> = ({ records, deleteRecord, settings }) =>
             <div className="flex w-full space-x-2">
                  <button
                     onClick={() => toast.dismiss(t.id)}
-                    className="flex-1 bg-bg-input hover:bg-border-card text-text-default font-bold py-2 px-4 rounded-lg text-sm transition-colors"
+                    className="flex-1 bg-gray-600 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded-lg text-sm transition-colors"
                     aria-label="Cancelar exclusão"
                 >
                     Cancelar
@@ -54,15 +54,14 @@ const History: React.FC<HistoryProps> = ({ records, deleteRecord, settings }) =>
                           return;
                         }
                         toast.dismiss(t.id);
-                        toast.success('Registro apagado com sucesso!');
+                        toast.success('Registro apagado com sucesso!', { duration: 1500 });
                         setDeletingRecordId(null);
                     }}
                     disabled={deletingRecordId === id}
-                    className="flex-1 bg-text-danger hover:opacity-90 text-white font-bold py-2 px-4 rounded-lg text-sm transition-colors flex items-center justify-center"
+                    className="flex-1 bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-4 rounded-lg text-sm transition-colors flex items-center justify-center"
                     aria-label="Confirmar exclusão"
                 >
-                    {deletingRecordId === id ? <Loader2 className="animate-spin mr-2" size={18} /> : null}
-                    {deletingRecordId === id ? 'Apagando...' : 'Confirmar'}
+                    {deletingRecordId === id ? <Loader2 className="animate-spin mr-2" size={18} /> : 'Confirmar'}
                 </button>
             </div>
         </div>
@@ -123,7 +122,7 @@ const History: React.FC<HistoryProps> = ({ records, deleteRecord, settings }) =>
 
   if (records.length === 0) {
     return (
-      <div className="text-center text-text-muted mt-10">
+      <div className="text-center text-text-muted mt-10"> {/* Usando classes de tema */}
         <Calendar size={48} className="mx-auto mb-4" />
         <h2 className="text-xl font-semibold">Nenhum registro encontrado</h2>
         <p className="mt-2">Comece a adicionar suas corridas na tela de Início.</p>
@@ -139,7 +138,7 @@ const History: React.FC<HistoryProps> = ({ records, deleteRecord, settings }) =>
           <button 
             onClick={handleExportPDF}
             disabled={isExportingPDF}
-            className="flex items-center gap-2 bg-text-danger hover:opacity-90 text-white font-semibold py-2 px-4 rounded-lg transition-colors"
+            className="flex items-center gap-2 bg-red-700 hover:bg-red-800 text-white font-semibold py-2 px-4 rounded-lg transition-colors"
             aria-label="Exportar para PDF"
           >
             {isExportingPDF ? <Loader2 className="animate-spin mr-2" size={18} /> : <FileText size={18} />}
@@ -148,7 +147,7 @@ const History: React.FC<HistoryProps> = ({ records, deleteRecord, settings }) =>
           <button 
             onClick={handleExportCSV}
             disabled={isExportingCSV}
-            className="flex items-center gap-2 bg-brand-secondary hover:opacity-90 text-white font-semibold py-2 px-4 rounded-lg transition-colors"
+            className="flex items-center gap-2 bg-brand-secondary hover:bg-emerald-700 text-white font-semibold py-2 px-4 rounded-lg transition-colors"
             aria-label="Exportar para CSV"
           >
             {isExportingCSV ? <Loader2 className="animate-spin mr-2" size={18} /> : <FileDown size={18} />}
@@ -157,19 +156,19 @@ const History: React.FC<HistoryProps> = ({ records, deleteRecord, settings }) =>
         </div>
       </div>
 
-      <div className="bg-bg-card p-5 rounded-lg shadow-md text-center mb-4">
-          <p className="text-base text-text-muted">Lucro Líquido Total</p>
-          <p className={`text-3xl font-bold ${totalNetProfit >= 0 ? 'text-text-success' : 'text-text-danger'}`}>{totalNetProfit.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}</p>
+      <div className="bg-bg-card p-5 rounded-lg shadow-md text-center mb-4"> {/* Usando classes de tema */}
+          <p className="text-base text-text-muted">Lucro Líquido Total</p> {/* Usando classes de tema */}
+          <p className={`text-3xl font-bold ${totalNetProfit >= 0 ? 'text-green-400' : 'text-red-400'}`}>{totalNetProfit.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}</p>
       </div>
 
       <div className="grid grid-cols-2 gap-4 mb-6">
-        <div className="bg-bg-card p-4 rounded-lg text-center">
-            <p className="text-sm text-text-muted">Ganhos Totais</p>
+        <div className="bg-bg-card p-4 rounded-lg text-center"> {/* Usando classes de tema */}
+            <p className="text-sm text-text-muted">Ganhos Totais</p> {/* Usando classes de tema */}
             <p className="text-2xl font-bold text-brand-primary">{totalEarnings.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}</p>
         </div>
-        <div className="bg-bg-card p-4 rounded-lg text-center">
-            <p className="text-sm text-text-muted">Custos Totais</p>
-            <p className="text-2xl font-bold text-text-warning">{totalCosts.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}</p>
+        <div className="bg-bg-card p-4 rounded-lg text-center"> {/* Usando classes de tema */}
+            <p className="text-sm text-text-muted">Custos Totais</p> {/* Usando classes de tema */}
+            <p className="text-2xl font-bold text-yellow-400">{totalCosts.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}</p>
         </div>
       </div>
       
@@ -181,20 +180,20 @@ const History: React.FC<HistoryProps> = ({ records, deleteRecord, settings }) =>
           return (
             <div 
                 key={record.id} 
-                className="bg-bg-card rounded-lg shadow-md transition-all duration-300 overflow-hidden p-4 flex items-center justify-between cursor-pointer hover:bg-bg-card/50"
+                className="bg-bg-card rounded-lg shadow-md transition-all duration-300 overflow-hidden p-4 flex items-center justify-between cursor-pointer hover:bg-bg-card/50" {/* Usando classes de tema */}
                 onClick={() => handleViewDetails(record)}
                 aria-label={`Ver detalhes do registro de ${new Date(record.date).toLocaleDateString('pt-BR', { timeZone: 'UTC' })}`}
             >
                 <div className="flex items-center gap-4">
-                    <Calendar size={24} className="text-text-muted flex-shrink-0" />
+                    <Calendar size={24} className="text-text-muted flex-shrink-0" /> {/* Usando classes de tema */}
                     <div>
-                        <p className="font-bold text-lg text-text-heading">{new Date(record.date).toLocaleDateString('pt-BR', { timeZone: 'UTC' })}</p>
+                        <p className="font-bold text-lg text-text-default">{new Date(record.date).toLocaleDateString('pt-BR', { timeZone: 'UTC' })}</p> {/* Usando classes de tema */}
                         <div className="flex items-center gap-3 mt-1">
-                            <p className="flex items-center text-sm text-text-muted">
+                            <p className="flex items-center text-sm text-text-muted"> {/* Usando classes de tema */}
                                 <Route size={14} className="mr-1.5" /> {record.kmDriven.toFixed(1)} km
                             </p>
                             {record.hoursWorked !== undefined && record.hoursWorked > 0 && (
-                                <p className="flex items-center text-sm text-text-muted">
+                                <p className="flex items-center text-sm text-text-muted"> {/* Usando classes de tema */}
                                     <Clock size={14} className="mr-1.5" /> {record.hoursWorked.toFixed(1)} h
                                 </p>
                             )}
@@ -203,12 +202,12 @@ const History: React.FC<HistoryProps> = ({ records, deleteRecord, settings }) =>
                 </div>
                 <div className="flex items-center gap-2 sm:gap-4">
                     <div className="text-right">
-                        <p className="text-xs text-text-muted">Lucro Líquido</p>
-                        <p className={`font-bold text-lg ${netProfit >= 0 ? 'text-text-success' : 'text-text-danger'}`}>{netProfit.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}</p>
+                        <p className="text-xs text-text-muted">Lucro Líquido</p> {/* Usando classes de tema */}
+                        <p className={`font-bold text-lg ${netProfit >= 0 ? 'text-green-400' : 'text-red-400'}`}>{netProfit.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}</p>
                     </div>
                     <button 
                         onClick={(e: React.MouseEvent<HTMLButtonElement>) => { e.stopPropagation(); handleDelete(record.id, record.date); }} 
-                        className="p-2 bg-text-danger hover:opacity-90 rounded-full text-white transition-transform transform hover:scale-110" 
+                        className="p-2 bg-red-600 hover:bg-red-700 rounded-full text-white transition-transform transform hover:scale-110" 
                         aria-label={`Deletar registro de ${new Date(record.date).toLocaleDateString('pt-BR', { timeZone: 'UTC' })}`}
                     >
                         <Trash2 size={18} />
