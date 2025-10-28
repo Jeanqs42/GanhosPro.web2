@@ -89,7 +89,8 @@ export const notificationService = {
   async clearNotificationForToday(): Promise<void> {
     try {
       const pending = await LocalNotifications.getPending();
-      const dailyReminder = pending.notifications.find(n => n.id === NOTIFICATION_ID);
+      // Adiciona verificação para pending.notifications
+      const dailyReminder = pending.notifications?.find(n => n.id === NOTIFICATION_ID);
 
       if (dailyReminder && dailyReminder.schedule?.at) {
         const scheduledTime = new Date(dailyReminder.schedule.at);
@@ -138,7 +139,8 @@ export const notificationService = {
   async getScheduledReminderTime(): Promise<string | null> {
     try {
       const pending = await LocalNotifications.getPending();
-      const dailyReminder = pending.notifications.find(n => n.id === NOTIFICATION_ID);
+      // Adiciona verificação para pending.notifications
+      const dailyReminder = pending.notifications?.find(n => n.id === NOTIFICATION_ID);
       if (dailyReminder && dailyReminder.schedule?.at) {
         const date = new Date(dailyReminder.schedule.at);
         return date.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit', hour12: false });
