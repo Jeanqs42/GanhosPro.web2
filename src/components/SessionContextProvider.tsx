@@ -10,6 +10,7 @@ interface Profile {
   avatar_url: string | null;
   is_premium: boolean;
   subscription_status: string | null;
+  stripe_customer_id: string | null; // Adicionado stripe_customer_id
 }
 
 interface SessionContextType {
