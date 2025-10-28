@@ -48,9 +48,47 @@ serve(async (req) => {
       httpClient: Stripe.createFetchHttpClient(),
     });
 
+    // Tenta encontrar um cliente Stripe existente para o usuário
+    let customerId;
+    const { data: profileData, error: profileFetchError } = await supabaseClient
+      .from('profiles')
+      .select('stripe_customer_id')
+      .eq('id', user.id)
+      .single();
+
+    if (profileFetchError && profileFetchError.code !== 'PGRST116') { // PGRST116 means no rows found
+      throw profileFetchError;
+    }
+
+    if (profileData?.stripe_customer_id) {
+      customerId = profileData.stripe_customer_id;
+    } else {
+      // Se não houver customer_id no perfil, tenta encontrar ou criar no Stripe
+      const customers = await stripe.customers.list({ email: user.email, limit: 1 });
+      if (customers.data.length > 0) {
+        customerId = customers.data[0].id;
+        // Atualiza o perfil do Supabase com o customer_id encontrado
+        await supabaseClient
+          .from('profiles')
+          .update({ stripe_customer_id: customerId })
+          .eq('id', user.id);
+      } else {
+        const newCustomer = await stripe.customers.create({
+          email: user.email,
+          metadata: { user_id: user.id }, // Link Supabase user ID to Stripe customer
+        });
+        customerId = newCustomer.id;
+        // Atualiza o perfil do Supabase com o novo customer_id
+        await supabaseClient
+          .from('profiles')
+          .update({ stripe_customer_id: customerId })
+          .eq('id', user.id);
+      }
+    }
+
     // Cria a sessão de checkout do Stripe
     const checkoutSession = await stripe.checkout.sessions.create({
-      customer_email: user.email,
+      customer: customerId, // Usa o customerId encontrado ou criado
       line_items: [{
         price: priceId, // ID do preço do Stripe (ex: price_12345)
         quantity: 1,

@@ -59,11 +59,14 @@ serve(async (req) => {
     let userId: string | undefined;
     let isPremium = false;
     let subscriptionStatus: string | null = null;
+    let stripeCustomerId: string | undefined;
 
     switch (event.type) {
       case 'checkout.session.completed':
         const checkoutSession = event.data.object as Stripe.Checkout.Session;
-        userId = checkoutSession.metadata?.user_id; // Obtém o ID do usuário do metadata
+        userId = checkoutSession.metadata?.user_id;
+        stripeCustomerId = checkoutSession.customer as string; // Obtém o ID do cliente Stripe da sessão
+
         if (checkoutSession.mode === 'subscription' && checkoutSession.subscription) {
           const subscription = await stripe.subscriptions.retrieve(checkoutSession.subscription as string);
           isPremium = subscription.status === 'active' || subscription.status === 'trialing';
@@ -77,10 +80,25 @@ serve(async (req) => {
       case 'customer.subscription.updated':
       case 'customer.subscription.deleted':
         const subscription = event.data.object as Stripe.Subscription;
-        // Em um cenário real, você teria o customer_id do Stripe no perfil do usuário
-        // Para simplificar, vamos tentar buscar o user_id do metadata do customer
-        const customer = await stripe.customers.retrieve(subscription.customer as string);
-        userId = (customer as Stripe.Customer).metadata?.user_id; 
+        stripeCustomerId = subscription.customer as string; // Obtém o ID do cliente Stripe da assinatura
+
+        // Encontra o usuário pelo stripe_customer_id na tabela profiles
+        const { data: profileByStripeId, error: profileByStripeIdError } = await supabaseAdmin
+          .from('profiles')
+          .select('id')
+          .eq('stripe_customer_id', stripeCustomerId)
+          .single();
+
+        if (profileByStripeIdError) {
+          console.error('Erro ao encontrar perfil pelo Stripe Customer ID:', profileByStripeIdError);
+          // Se não encontrar, loga e continua, pois não podemos vincular a um usuário Supabase
+          return new Response(JSON.stringify({ error: 'Profile not found for Stripe Customer ID' }), {
+            status: 404,
+            headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+          });
+        } else {
+          userId = profileByStripeId?.id;
+        }
 
         isPremium = subscription.status === 'active' || subscription.status === 'trialing';
         subscriptionStatus = subscription.status;
@@ -94,9 +112,18 @@ serve(async (req) => {
     }
 
     if (userId) {
+      const updateData: { is_premium: boolean; subscription_status: string | null; updated_at: string; stripe_customer_id?: string } = {
+        is_premium: isPremium,
+        subscription_status: subscriptionStatus,
+        updated_at: new Date().toISOString(),
+      };
+      if (stripeCustomerId) {
+        updateData.stripe_customer_id = stripeCustomerId; // Garante que stripe_customer_id seja salvo/atualizado
+      }
+
       const { error } = await supabaseAdmin
         .from('profiles')
-        .update({ is_premium: isPremium, subscription_status: subscriptionStatus, updated_at: new Date().toISOString() })
+        .update(updateData)
         .eq('id', userId);
 
       if (error) {

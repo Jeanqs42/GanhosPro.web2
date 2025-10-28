@@ -110,7 +110,7 @@ const Premium: React.FC<PremiumProps> = ({ records, settings }) => {
 
   const handleUpgrade = async (priceId: string, mode: 'payment' | 'subscription') => {
     if (!user) {
-      toast('Você precisa estar logado para assinar o Premium.'); // Corrigido de toast.info para toast()
+      toast('Você precisa estar logado para assinar o Premium.');
       navigate('/login');
       return;
     }
@@ -1150,7 +1150,7 @@ const Premium: React.FC<PremiumProps> = ({ records, settings }) => {
             <div className="flex flex-col gap-4">
                 <button
                     onClick={() => handleUpgrade(
-                        'price_1SMAaYLfOkZUOBKq2jLxKI2F', // ID de preço mensal
+                        'YOUR_STRIPE_MONTHLY_PRICE_ID', // ID de preço mensal
                         'subscription'
                     )}
                     disabled={isUpgrading}
@@ -1158,11 +1158,11 @@ const Premium: React.FC<PremiumProps> = ({ records, settings }) => {
                     aria-label="Assinar Premium Mensal"
                 >
                     {isUpgrading ? <Loader2 className="animate-spin mr-2" size={24} /> : <DollarSign className="mr-2" />}
-                    {isUpgrading ? 'Processando...' : 'Assinar Mensal (R$2,99/mês)'}
+                    {isUpgrading ? 'Processando...' : 'Assinar Mensal (R$X.XX/mês)'}
                 </button>
                 <button
                     onClick={() => handleUpgrade(
-                        'price_1SMAd2LfOkZUOBKqCRS1J5Gm', // ID de preço anual
+                        'YOUR_STRIPE_ANNUAL_PRICE_ID', // ID de preço anual
                         'subscription'
                     )}
                     disabled={isUpgrading}
@@ -1170,7 +1170,7 @@ const Premium: React.FC<PremiumProps> = ({ records, settings }) => {
                     aria-label="Assinar Premium Anual"
                 >
                     {isUpgrading ? <Loader2 className="animate-spin mr-2" size={24} /> : <Unlock className="mr-2" />}
-                    {isUpgrading ? 'Processando...' : 'Assinar Anual (R$YY.YY/ano)'}
+                    {isUpgrading ? 'Processando...' : 'Assinar Anual (R$Y.YY/ano)'}
                 </button>
             </div>
         </div>
