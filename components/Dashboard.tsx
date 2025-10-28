@@ -4,7 +4,8 @@ import toast from 'react-hot-toast';
 import { DollarSign, Route, Clock, Wrench, Calculator, Save, Info, Edit, ArrowLeft, Loader2 } from 'lucide-react';
 import { RunRecord, AppSettings, CalculationResult } from '../types';
 import { safeRandomUUID } from '../utils/uuid';
-import { notificationService } from '../src/integrations/capacitor/notifications'; // Importando o serviço de notificação
+import { notificationService } from '../src/integrations/capacitor/notifications';
+import { useSession } from '../src/components/SessionContextProvider'; // Importar useSession
 
 interface InputFieldProps {
   icon: React.ReactNode; 
@@ -51,12 +52,13 @@ interface DashboardProps {
     settings: AppSettings;
     addOrUpdateRecord: (record: RunRecord) => Promise<boolean>;
     deleteRecord: (id: string) => Promise<boolean>;
-    isPremium: boolean;
+    // isPremium agora vem do contexto de sessão
 }
 
-const Dashboard: React.FC<DashboardProps> = ({ records, settings, addOrUpdateRecord, deleteRecord, isPremium }) => {
+const Dashboard: React.FC<DashboardProps> = ({ records, settings, addOrUpdateRecord, deleteRecord }) => {
     const location = useLocation();
     const navigate = useNavigate();
+    const { isPremium } = useSession(); // Obter isPremium do contexto de sessão
     const recordFromState = location.state?.record as RunRecord | undefined;
     
     const [isDetailsView, setIsDetailsView] = useState<boolean>(!!recordFromState);
@@ -146,7 +148,7 @@ const Dashboard: React.FC<DashboardProps> = ({ records, settings, addOrUpdateRec
             setHasCalculated(false);
             navigate('/app', { state: {}, replace: true }); // Limpa o estado da navegação
         }
-    }, [recordFromState, navigate]); // Adicionado navigate como dependência
+    }, [recordFromState, navigate]);
 
     const handleSave = async () => {
         setIsSaving(true);

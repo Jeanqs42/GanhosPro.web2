@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Routes, Route, NavLink } from 'react-router-dom';
-import { Database, Settings as SettingsIcon, Crown, Home } from 'lucide-react';
+import { Database, Settings as SettingsIcon, Crown, Home, LogOut } from 'lucide-react';
 import Dashboard from './Dashboard';
 import History from './History';
 import Settings from './Settings';
@@ -8,7 +8,8 @@ import Premium from './Premium';
 import { RunRecord, AppSettings } from '../types';
 import { useLocalStorage } from '../hooks/useLocalStorage';
 import { useOfflineSync } from '../hooks/useOfflineSync';
-import { notificationService } from '../src/integrations/capacitor/notifications'; // Importando o serviço de notificação
+import { notificationService } from '../src/integrations/capacitor/notifications';
+import { useSession } from '../src/components/SessionContextProvider'; // Importar useSession
 
 const AppLayout: React.FC = () => {
   const { 
@@ -19,20 +20,24 @@ const AppLayout: React.FC = () => {
     pendingOperations,
   } = useOfflineSync();
 
+  const { isPremium, signOut, user, profile } = useSession(); // Usar o contexto de sessão
+  
   const [records, setRecords] = useState<RunRecord[]>([]);
   const [settings, setSettings] = useLocalStorage<AppSettings>('ganhospro_settings', { costPerKm: 0.75 });
-  const [isPremium, setIsPremium] = useLocalStorage<boolean>('ganhospro_is_premium', false);
+  // isPremium agora vem do contexto de sessão, não mais do localStorage
   const [notificationSettings] = useLocalStorage<{ enabled: boolean; time: string }>('ganhospro_notification_settings', { enabled: false, time: '19:00' });
 
   useEffect(() => {
-    if (isInitialized) {
+    if (isInitialized && user) { // Carregar registros apenas se o usuário estiver autenticado
       const fetchRecords = async () => {
         const fetchedRecords = await getAllRecords();
         setRecords(fetchedRecords);
       };
       fetchRecords();
+    } else if (!user) {
+      setRecords([]); // Limpar registros se o usuário não estiver autenticado
     }
-  }, [isInitialized, getAllRecords, pendingOperations.length]);
+  }, [isInitialized, getAllRecords, pendingOperations.length, user]); // Adicionado user como dependência
 
   // Efeito para inicializar/reagendar notificações ao carregar o app
   useEffect(() => {
@@ -41,17 +46,13 @@ const AppLayout: React.FC = () => {
         const granted = await notificationService.requestPermissions();
         if (granted) {
           await notificationService.scheduleDailyReminder(notificationSettings);
-        } else {
-          // Se a permissão foi negada na inicialização, desativar o lembrete na UI
-          // Isso é tratado dentro do NotificationSettings, mas é bom ter um fallback aqui.
-          // No entanto, o useLocalStorage já manterá o estado, então não precisamos de setSettings aqui.
         }
       } else {
         await notificationService.cancelDailyReminder();
       }
     };
     initializeNotifications();
-  }, [notificationSettings.enabled, notificationSettings.time]); // Depende das configurações de notificação
+  }, [notificationSettings.enabled, notificationSettings.time]);
 
   const addOrUpdateRecord = async (record: RunRecord) => {
     const success = await saveRecordOffline(record);
@@ -85,7 +86,7 @@ const AppLayout: React.FC = () => {
           <Route path="/" element={<Dashboard records={records} settings={settings} addOrUpdateRecord={addOrUpdateRecord} deleteRecord={deleteRecord} isPremium={isPremium} />} />
           <Route path="/history" element={<History records={records} deleteRecord={deleteRecord} settings={settings} />} />
           <Route path="/settings" element={<Settings settings={settings} setSettings={setSettings} isPremium={isPremium} />} />
-          <Route path="/premium" element={<Premium records={records} settings={settings} isPremium={isPremium} setIsPremium={setIsPremium} />} />
+          <Route path="/premium" element={<Premium records={records} settings={settings} isPremium={isPremium} setIsPremium={() => { /* No longer directly setting isPremium from here */ }} />} />
         </Routes>
       </main>
       <footer className="fixed bottom-0 left-0 right-0 bg-bg-card border-t border-border-card shadow-lg">
@@ -109,6 +110,10 @@ const AppLayout: React.FC = () => {
             <SettingsIcon size={24} />
             <span>Ajustes</span>
           </NavLink>
+          <button onClick={signOut} className="flex flex-col items-center justify-center w-full text-xs text-text-muted hover:text-red-500 transition-colors" aria-label="Sair">
+            <LogOut size={24} />
+            <span>Sair</span>
+          </button>
         </nav>
       </footer>
     </div>

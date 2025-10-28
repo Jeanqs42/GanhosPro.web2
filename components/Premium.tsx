@@ -6,12 +6,12 @@ import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGri
 import { RunRecord, AppSettings } from '../types';
 import { analyzeRecords, getChatFollowUp, getIntelligentReportAnalysis } from '../services/geminiService';
 import ReactMarkdown from 'react-markdown';
+import { useSession } from '../src/components/SessionContextProvider'; // Importar useSession
 
 interface PremiumProps {
   records: RunRecord[];
   settings: AppSettings;
-  isPremium: boolean;
-  setIsPremium: (isPremium: boolean) => void;
+  // isPremium e setIsPremium agora vêm do contexto de sessão
 }
 
 type ActiveTool = 'menu' | 'insights' | 'reports' | 'periodic';
@@ -33,8 +33,9 @@ const getWeekKey = (date: Date): string => {
   return `W${startOfWeek.toISOString().slice(0, 10)}`;
 };
 
-const Premium: React.FC<PremiumProps> = ({ records, settings, isPremium, setIsPremium }) => {
+const Premium: React.FC<PremiumProps> = ({ records, settings }) => {
   const navigate = useNavigate();
+  const { isPremium, refreshProfile } = useSession(); // Obter isPremium e refreshProfile do contexto
   const [activeTool, setActiveTool] = useState<ActiveTool>('menu');
 
   const [analysis, setAnalysis] = useState<string>(localStorage.getItem('ganhospro_analysis') || '');
@@ -88,9 +89,17 @@ const Premium: React.FC<PremiumProps> = ({ records, settings, isPremium, setIsPr
     localStorage.setItem('ganhospro_chat_history', JSON.stringify(chatHistory));
   }, [analysis, chatHistory]);
 
-  const handleUpgrade = () => {
-    setIsPremium(true);
-    toast.success('Parabéns! Você agora é um usuário Premium.');
+  const handleUpgrade = async () => {
+    // TODO: Implement Stripe checkout initiation here
+    // For now, simulate premium status update
+    // This will be replaced by actual Stripe checkout logic
+    toast.info('Iniciando processo de upgrade para Premium...');
+    // Simulate a successful upgrade
+    // In a real scenario, this would involve a Stripe checkout session
+    // and a webhook updating the user's profile in Supabase.
+    // For now, we'll just refresh the profile to reflect potential changes.
+    await refreshProfile();
+    toast.success('Parabéns! Você agora é um usuário Premium (simulado).');
   };
 
   const getPeriodKey = (dateStr: string, period: PeriodType): string => {
@@ -1115,7 +1124,6 @@ const Premium: React.FC<PremiumProps> = ({ records, settings, isPremium, setIsPr
             {activeTool === 'menu' && renderMenu()}
             {activeTool === 'insights' && renderInsightsTool()}
             {activeTool === 'reports' && renderReportsTool()}
-            {activeTool === 'periodic' && renderPeriodicTool()}
         </>
       )}
     </div>

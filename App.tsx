@@ -2,10 +2,31 @@ import React from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import AppLayout from './components/AppLayout';
 import LandingPage from './src/pages/LandingPage';
+import Login from './src/pages/Login'; // Importar a página de Login
 import { useLocalStorage } from './hooks/useLocalStorage';
-import { useTheme } from './src/hooks/useTheme'; // Caminho corrigido
+import { useTheme } from './src/hooks/useTheme';
+import { SessionContextProvider, useSession } from './src/components/SessionContextProvider'; // Importar SessionContextProvider e useSession
 
-const App: React.FC = () => {
+// Componente Wrapper para rotas protegidas
+const ProtectedRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+  const { session, loading } = useSession();
+
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-bg-default text-text-default">
+        <Loader2 className="animate-spin w-10 h-10 text-brand-primary" />
+      </div>
+    );
+  }
+
+  if (!session) {
+    return <Navigate to="/login" replace />;
+  }
+
+  return <>{children}</>;
+};
+
+const AppContent: React.FC = () => {
   // Inicializa o hook de tema para aplicar as variáveis CSS globalmente
   useTheme(); 
 
@@ -20,9 +41,19 @@ const App: React.FC = () => {
   return (
     <BrowserRouter>
       <Routes>
-        {/* Rota para a interface principal do aplicativo */}
-        <Route path="/app/*" element={<AppLayout />} />
+        {/* Rota para a interface principal do aplicativo, protegida por autenticação */}
+        <Route 
+          path="/app/*" 
+          element={
+            <ProtectedRoute>
+              <AppLayout />
+            </ProtectedRoute>
+          } 
+        />
         
+        {/* Rota de Login */}
+        <Route path="/login" element={<Login />} />
+
         {/* Rota inicial: exibe a LandingPage ou redireciona para /app */}
         <Route 
           path="/" 
@@ -41,5 +72,11 @@ const App: React.FC = () => {
     </BrowserRouter>
   );
 };
+
+const App: React.FC = () => (
+  <SessionContextProvider>
+    <AppContent />
+  </SessionContextProvider>
+);
 
 export default App;

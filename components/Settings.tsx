@@ -5,12 +5,13 @@ import { Save, Info, Calculator, Droplet, Zap, Blend, PlusCircle, Car, Wrench, S
 import { AppSettings } from '../types';
 import { useLocalStorage } from '../hooks/useLocalStorage';
 import { useTheme } from '../src/hooks/useTheme';
-import NotificationSettings from '../src/components/NotificationSettings'; // Caminho corrigido
+import NotificationSettings from '../src/components/NotificationSettings';
+import { useSession } from '../src/components/SessionContextProvider'; // Importar useSession
 
 interface SettingsProps {
   settings: AppSettings;
   setSettings: (settings: AppSettings) => void;
-  isPremium: boolean;
+  // isPremium agora vem do contexto de sessão
 }
 
 const InputField: React.FC<{ icon?: React.ReactNode; label: string; helper?: string; id: string; value: string; onChange: (e: React.ChangeEvent<HTMLInputElement>) => void; placeholder: string; }> = ({ icon, label, helper, id, value, onChange, placeholder }) => (
@@ -34,9 +35,10 @@ const InputField: React.FC<{ icon?: React.ReactNode; label: string; helper?: str
     </div>
 );
 
-const Settings: React.FC<SettingsProps> = ({ settings, setSettings, isPremium }) => {
+const Settings: React.FC<SettingsProps> = ({ settings, setSettings }) => {
   const navigate = useNavigate();
   const { theme, setTheme, themes } = useTheme();
+  const { isPremium } = useSession(); // Obter isPremium do contexto de sessão
   const [costPerKm, setCostPerKm] = useState<string>(settings.costPerKm.toString());
   const [activeTab, setActiveTab] = useLocalStorage<'combustion' | 'hybrid' | 'electric'>('settings_active_tab', 'combustion');
 
