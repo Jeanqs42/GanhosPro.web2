@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Routes, Route, NavLink } from 'react-router-dom';
+import { Routes, Route, NavLink, useLocation, useNavigate } from 'react-router-dom';
 import { Database, Settings as SettingsIcon, Crown, Home } from 'lucide-react';
 import Dashboard from './Dashboard';
 import History from './History';
@@ -8,7 +8,7 @@ import Premium from './Premium';
 import { RunRecord, AppSettings } from '../types';
 import { useLocalStorage } from '../hooks/useLocalStorage';
 import { useOfflineSync } from '../hooks/useOfflineSync';
-import { useSession } from '../src/components/SessionContextProvider'; // Import useSession
+import { useSession } from '../src/components/SessionContextProvider';
 
 const AppLayout: React.FC = () => {
   const { 
@@ -19,11 +19,12 @@ const AppLayout: React.FC = () => {
     pendingOperations,
   } = useOfflineSync();
 
-  const { isPremium, setIsPremium } = useSession(); // Get isPremium and setIsPremium from session context
+  const { isPremium, setIsPremium, loading: sessionLoading } = useSession();
+  const navigate = useNavigate();
+  const location = useLocation();
 
   const [records, setRecords] = useState<RunRecord[]>([]);
   const [settings, setSettings] = useLocalStorage<AppSettings>('ganhospro_settings', { costPerKm: 0.75 });
-  // Removed: const [isPremium, setIsPremium] = useLocalStorage<boolean>('ganhospro_is_premium', false);
 
   useEffect(() => {
     if (isInitialized) {
@@ -34,6 +35,13 @@ const AppLayout: React.FC = () => {
       fetchRecords();
     }
   }, [isInitialized, getAllRecords, pendingOperations.length]);
+
+  // Lógica de redirecionamento para usuários não-Premium
+  useEffect(() => {
+    if (!sessionLoading && !isPremium && location.pathname !== '/app/premium') {
+      navigate('/app/premium', { replace: true });
+    }
+  }, [isPremium, sessionLoading, location.pathname, navigate]);
 
   const addOrUpdateRecord = async (record: RunRecord) => {
     const success = await saveRecordOffline(record);
