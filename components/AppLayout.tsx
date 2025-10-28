@@ -9,7 +9,7 @@ import { RunRecord, AppSettings } from '../types';
 import { useLocalStorage } from '../hooks/useLocalStorage';
 import { useOfflineSync } from '../hooks/useOfflineSync';
 import { notificationService } from '../src/integrations/capacitor/notifications';
-import { useSession } from '../src/components/SessionContextProvider'; // Importar useSession
+import { useSession } from '../src/components/SessionContextProvider';
 
 const AppLayout: React.FC = () => {
   const { 
@@ -20,24 +20,21 @@ const AppLayout: React.FC = () => {
     pendingOperations,
   } = useOfflineSync();
 
-  const { isPremium, signOut, user, profile } = useSession(); // Usar o contexto de sessão
+  const { isPremium, signOut, user, session } = useSession(); // Obter 'session' também
   
   const [records, setRecords] = useState<RunRecord[]>([]);
   const [settings, setSettings] = useLocalStorage<AppSettings>('ganhospro_settings', { costPerKm: 0.75 });
-  // isPremium agora vem do contexto de sessão, não mais do localStorage
   const [notificationSettings] = useLocalStorage<{ enabled: boolean; time: string }>('ganhospro_notification_settings', { enabled: false, time: '19:00' });
 
   useEffect(() => {
-    if (isInitialized && user) { // Carregar registros apenas se o usuário estiver autenticado
+    if (isInitialized) { // Carregar registros independentemente do status de login
       const fetchRecords = async () => {
         const fetchedRecords = await getAllRecords();
         setRecords(fetchedRecords);
       };
       fetchRecords();
-    } else if (!user) {
-      setRecords([]); // Limpar registros se o usuário não estiver autenticado
     }
-  }, [isInitialized, getAllRecords, pendingOperations.length, user]); // Adicionado user como dependência
+  }, [isInitialized, getAllRecords, pendingOperations.length]);
 
   // Efeito para inicializar/reagendar notificações ao carregar o app
   useEffect(() => {
@@ -86,7 +83,7 @@ const AppLayout: React.FC = () => {
           <Route path="/" element={<Dashboard records={records} settings={settings} addOrUpdateRecord={addOrUpdateRecord} deleteRecord={deleteRecord} isPremium={isPremium} />} />
           <Route path="/history" element={<History records={records} deleteRecord={deleteRecord} settings={settings} />} />
           <Route path="/settings" element={<Settings settings={settings} setSettings={setSettings} isPremium={isPremium} />} />
-          <Route path="/premium" element={<Premium records={records} settings={settings} isPremium={isPremium} setIsPremium={() => { /* No longer directly setting isPremium from here */ }} />} />
+          <Route path="/premium" element={<Premium records={records} settings={settings} />} />
         </Routes>
       </main>
       <footer className="fixed bottom-0 left-0 right-0 bg-bg-card border-t border-border-card shadow-lg">
@@ -110,10 +107,12 @@ const AppLayout: React.FC = () => {
             <SettingsIcon size={24} />
             <span>Ajustes</span>
           </NavLink>
-          <button onClick={signOut} className="flex flex-col items-center justify-center w-full text-xs text-text-muted hover:text-red-500 transition-colors" aria-label="Sair">
-            <LogOut size={24} />
-            <span>Sair</span>
-          </button>
+          {session && ( // Botão de Sair visível apenas se houver uma sessão ativa
+            <button onClick={signOut} className="flex flex-col items-center justify-center w-full text-xs text-text-muted hover:text-red-500 transition-colors" aria-label="Sair">
+              <LogOut size={24} />
+              <span>Sair</span>
+            </button>
+          )}
         </nav>
       </footer>
     </div>
