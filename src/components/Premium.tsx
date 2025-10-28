@@ -110,7 +110,7 @@ const Premium: React.FC<PremiumProps> = ({ records, settings }) => {
 
   const handleUpgrade = async (priceId: string, mode: 'payment' | 'subscription') => {
     if (!user) {
-      toast.error('Você precisa estar logado para assinar o Premium.');
+      toast('Você precisa estar logado para assinar o Premium.'); // Corrigido de toast.info para toast()
       navigate('/login');
       return;
     }
