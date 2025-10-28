@@ -39,8 +39,8 @@ const InputField = React.memo<InputFieldProps>(({ icon, label, id, value, onChan
 
 // Memoized ResultCard component
 const ResultCard = React.memo<{ title: string; value: string; color: string; }>(({ title, value, color }) => (
-    <div className="bg-bg-card p-4 rounded-lg shadow-md text-center"> {/* Usando classes de tema */}
-        <p className="text-sm text-text-muted">{title}</p> {/* Usando classes de tema */}
+    <div className="bg-bg-card p-4 rounded-lg shadow-md text-center">
+        <p className="text-sm text-text-muted">{title}</p>
         <p className={`text-2xl font-bold ${color}`}>{value}</p>
     </div>
 ));
@@ -88,7 +88,7 @@ const Dashboard: React.FC<DashboardProps> = ({ records, settings, addOrUpdateRec
              toast((t: any) => (
                 <div className="flex flex-col items-center text-center p-2">
                     <h3 className="font-bold text-lg mb-2 text-yellow-400">Aviso de Sobrescrita</h3>
-                    <p className="text-sm mb-4 text-text-default"> {/* Usando classes de tema */}
+                    <p className="text-sm mb-4 text-text-default">
                         Já existe um registro para {new Date(date).toLocaleDateString('pt-BR', { timeZone: 'UTC' })}.
                         Deseja continuar? O registro antigo será substituído ao salvar.
                     </p>
@@ -166,7 +166,7 @@ const Dashboard: React.FC<DashboardProps> = ({ records, settings, addOrUpdateRec
             toast((t: any) => (
                 <div className="flex flex-col items-center text-center p-2">
                     <h3 className="font-bold text-lg mb-2 text-brand-primary">Limite Gratuito Atingido</h3>
-                    <p className="text-sm mb-4 text-text-default"> {/* Usando classes de tema */}
+                    <p className="text-sm mb-4 text-text-default">
                         Você atingiu o limite de 15 registros. Para continuar, apague um registro antigo ou assine o Premium para registros ilimitados.
                     </p>
                     <div className="flex w-full space-x-2">
@@ -310,13 +310,13 @@ const Dashboard: React.FC<DashboardProps> = ({ records, settings, addOrUpdateRec
     }, [records, id, date, isPremium]);
 
     const renderResultView = (isDetails: boolean) => (
-        <div className="bg-bg-card p-6 rounded-lg shadow-xl animate-fade-in-up mb-4"> {/* Usando classes de tema */}
-            <h2 className="text-xl font-semibold text-center mb-4 text-text-heading"> {/* Usando classes de tema */}
+        <div className="bg-bg-card p-6 rounded-lg shadow-xl animate-fade-in-up mb-4">
+            <h2 className="text-xl font-semibold text-center mb-4 text-text-heading">
                 {isDetails ? `Detalhes de ${new Date(date).toLocaleDateString('pt-BR', { timeZone: 'UTC' })}` : 'Resumo do Dia'}
             </h2>
             <div className="grid grid-cols-2 gap-4">
-                <div className="col-span-2 bg-bg-card/50 p-4 rounded-lg shadow-md text-center"> {/* Usando classes de tema */}
-                    <p className="text-base font-medium text-text-muted">Lucro Líquido</p> {/* Usando classes de tema */}
+                <div className="col-span-2 bg-bg-card/50 p-4 rounded-lg shadow-md text-center">
+                    <p className="text-base font-medium text-text-muted">Lucro Líquido</p>
                     <p className={`text-4xl font-bold ${result!.netProfit >= 0 ? 'text-green-400' : 'text-red-400'}`}>{formattedResults!.netProfit}</p>
                 </div>
                 <ResultCard title="Lucro/KM" value={formattedResults!.profitPerKm} color={result!.profitPerKm >= 0 ? 'text-green-400' : 'text-red-400'} />
@@ -371,16 +371,16 @@ const Dashboard: React.FC<DashboardProps> = ({ records, settings, addOrUpdateRec
             {hasCalculated && result && isDetailsView ? renderResultView(true) : null}
 
             {!hasCalculated && (
-                <div className="bg-bg-card p-6 rounded-lg shadow-xl mb-4 animate-fade-in-up"> {/* Usando classes de tema */}
+                <div className="bg-bg-card p-6 rounded-lg shadow-xl mb-4 animate-fade-in-up">
                     <InputField icon={<DollarSign size={18}/>} label="Ganhos do Dia (R$)" id="totalEarnings" value={totalEarnings} onChange={(e: React.ChangeEvent<HTMLInputElement>) => setTotalEarnings(e.target.value)} placeholder="Ex: 250.50" isHighlighted />
                     <InputField icon={<Route size={18}/>} label="KM Rodado" id="kmDriven" value={kmDriven} onChange={(e: React.ChangeEvent<HTMLInputElement>) => setKmDriven(e.target.value)} placeholder="Ex: 180" isHighlighted />
                     <InputField icon={<Clock size={18}/>} label="Horas Trabalhadas (Opcional)" id="hoursWorked" value={hoursWorked} onChange={(e: React.ChangeEvent<HTMLInputElement>) => setHoursWorked(e.target.value)} placeholder="Ex: 8.5" />
                     <InputField icon={<Wrench size={18}/>} label="Custos Adicionais (Opcional)" id="additionalCosts" value={additionalCosts} onChange={(e: React.ChangeEvent<HTMLInputElement>) => setAdditionalCosts(e.target.value)} placeholder="Ex: 25 (água, balas)" />
                     <div className="mb-4">
-                        <label htmlFor="date" className="flex items-center text-sm font-medium text-text-muted mb-2"> {/* Usando classes de tema */}
+                        <label htmlFor="date" className="flex items-center text-sm font-medium text-text-muted mb-2">
                             <span className="ml-2">Data</span>
                         </label>
-                        <input type="date" id="date" value={date} onChange={(e: React.ChangeEvent<HTMLInputElement>) => setDate(e.target.value)} className="w-full bg-bg-card border border-border-card rounded-lg px-4 py-2 text-text-default placeholder-text-muted focus:ring-2 focus:ring-brand-primary focus:outline-none transition" aria-label="Data do Registro" /> {/* Usando classes de tema */}
+                        <input type="date" id="date" value={date} onChange={(e: React.ChangeEvent<HTMLInputElement>) => setDate(e.target.value)} className="w-full bg-bg-card border border-border-card rounded-lg px-4 py-2 text-text-default placeholder-text-muted focus:ring-2 focus:ring-brand-primary focus:outline-none transition" aria-label="Data do Registro" />
                     </div>
                     <button onClick={handleCalculateClick} disabled={isCalculating} className="w-full bg-brand-primary hover:bg-brand-secondary text-white font-bold py-3 px-4 rounded-lg flex items-center justify-center transition-transform transform hover:scale-105" aria-label="Calcular Ganhos do Dia">
                         {isCalculating ? <Loader2 className="animate-spin mr-2" size={20} /> : <Calculator size={20} className="mr-2"/>}

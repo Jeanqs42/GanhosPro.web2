@@ -30,7 +30,7 @@ const History: React.FC<HistoryProps> = ({ records, deleteRecord, settings }) =>
     toast((t: any) => (
         <div className="flex flex-col items-center text-center p-2">
             <h3 className="font-bold text-lg mb-2 text-red-400">Confirmar Exclusão</h3>
-            <p className="text-sm mb-4 text-text-default"> {/* Usando classes de tema */}
+            <p className="text-sm mb-4 text-text-default">
                 Tem certeza que deseja apagar o registro do dia {new Date(recordDate).toLocaleDateString('pt-BR', { timeZone: 'UTC' })}?
                 <br/>
                 <span className="font-bold">Esta ação não pode ser desfeita.</span>
@@ -122,7 +122,7 @@ const History: React.FC<HistoryProps> = ({ records, deleteRecord, settings }) =>
 
   if (records.length === 0) {
     return (
-      <div className="text-center text-text-muted mt-10"> {/* Usando classes de tema */}
+      <div className="text-center text-text-muted mt-10">
         <Calendar size={48} className="mx-auto mb-4" />
         <h2 className="text-xl font-semibold">Nenhum registro encontrado</h2>
         <p className="mt-2">Comece a adicionar suas corridas na tela de Início.</p>
@@ -156,18 +156,18 @@ const History: React.FC<HistoryProps> = ({ records, deleteRecord, settings }) =>
         </div>
       </div>
 
-      <div className="bg-bg-card p-5 rounded-lg shadow-md text-center mb-4"> {/* Usando classes de tema */}
-          <p className="text-base text-text-muted">Lucro Líquido Total</p> {/* Usando classes de tema */}
+      <div className="bg-bg-card p-5 rounded-lg shadow-md text-center mb-4">
+          <p className="text-base text-text-muted">Lucro Líquido Total</p>
           <p className={`text-3xl font-bold ${totalNetProfit >= 0 ? 'text-green-400' : 'text-red-400'}`}>{totalNetProfit.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}</p>
       </div>
 
       <div className="grid grid-cols-2 gap-4 mb-6">
-        <div className="bg-bg-card p-4 rounded-lg text-center"> {/* Usando classes de tema */}
-            <p className="text-sm text-text-muted">Ganhos Totais</p> {/* Usando classes de tema */}
+        <div className="bg-bg-card p-4 rounded-lg text-center">
+            <p className="text-sm text-text-muted">Ganhos Totais</p>
             <p className="text-2xl font-bold text-brand-primary">{totalEarnings.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}</p>
         </div>
-        <div className="bg-bg-card p-4 rounded-lg text-center"> {/* Usando classes de tema */}
-            <p className="text-sm text-text-muted">Custos Totais</p> {/* Usando classes de tema */}
+        <div className="bg-bg-card p-4 rounded-lg text-center">
+            <p className="text-sm text-text-muted">Custos Totais</p>
             <p className="text-2xl font-bold text-yellow-400">{totalCosts.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}</p>
         </div>
       </div>
@@ -185,15 +185,15 @@ const History: React.FC<HistoryProps> = ({ records, deleteRecord, settings }) =>
                 aria-label={`Ver detalhes do registro de ${new Date(record.date).toLocaleDateString('pt-BR', { timeZone: 'UTC' })}`}
             >
                 <div className="flex items-center gap-4">
-                    <Calendar size={24} className="text-text-muted flex-shrink-0" /> {/* Usando classes de tema */}
+                    <Calendar size={24} className="text-text-muted flex-shrink-0" />
                     <div>
-                        <p className="font-bold text-lg text-text-default">{new Date(record.date).toLocaleDateString('pt-BR', { timeZone: 'UTC' })}</p> {/* Usando classes de tema */}
+                        <p className="font-bold text-lg text-text-default">{new Date(record.date).toLocaleDateString('pt-BR', { timeZone: 'UTC' })}</p>
                         <div className="flex items-center gap-3 mt-1">
-                            <p className="flex items-center text-sm text-text-muted"> {/* Usando classes de tema */}
+                            <p className="flex items-center text-sm text-text-muted">
                                 <Route size={14} className="mr-1.5" /> {record.kmDriven.toFixed(1)} km
                             </p>
                             {record.hoursWorked !== undefined && record.hoursWorked > 0 && (
-                                <p className="flex items-center text-sm text-text-muted"> {/* Usando classes de tema */}
+                                <p className="flex items-center text-sm text-text-muted">
                                     <Clock size={14} className="mr-1.5" /> {record.hoursWorked.toFixed(1)} h
                                 </p>
                             )}
@@ -202,7 +202,7 @@ const History: React.FC<HistoryProps> = ({ records, deleteRecord, settings }) =>
                 </div>
                 <div className="flex items-center gap-2 sm:gap-4">
                     <div className="text-right">
-                        <p className="text-xs text-text-muted">Lucro Líquido</p> {/* Usando classes de tema */}
+                        <p className="text-xs text-text-muted">Lucro Líquido</p>
                         <p className={`font-bold text-lg ${netProfit >= 0 ? 'text-green-400' : 'text-red-400'}`}>{netProfit.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}</p>
                     </div>
                     <button 

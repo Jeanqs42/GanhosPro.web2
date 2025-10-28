@@ -4,7 +4,7 @@ import toast from 'react-hot-toast';
 import { Save, Info, Calculator, Droplet, Zap, Blend, PlusCircle, Car, Wrench, Shield, FileText, Route, Crown, Loader2, Palette } from 'lucide-react';
 import { AppSettings } from '../types';
 import { useLocalStorage } from '../hooks/useLocalStorage';
-import { useTheme } from '../src/hooks/useTheme'; // Caminho corrigido
+import { useTheme } from '../src/hooks/useTheme';
 
 interface SettingsProps {
   settings: AppSettings;
@@ -268,7 +268,7 @@ const Settings: React.FC<SettingsProps> = ({ settings, setSettings, isPremium })
                     <p className="text-sm text-text-muted mt-2 mb-3">
                     Tenha um cálculo completo adicionando custos de manutenção, seguro e mais para um R$/KM ultra preciso.
                     </p>
-                    <button onClick={() => navigate('/premium')} className="bg-yellow-500 hover:bg-yellow-600 text-gray-900 font-bold py-2 px-4 rounded-lg text-sm transition-colors" aria-label="Desbloquear com Premium">
+                    <button onClick={() => navigate('/app/premium')} className="bg-yellow-500 hover:bg-yellow-600 text-gray-900 font-bold py-2 px-4 rounded-lg text-sm transition-colors" aria-label="Desbloquear com Premium">
                         Desbloquear com Premium
                     </button>
                 </div>
