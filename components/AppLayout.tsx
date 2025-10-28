@@ -19,7 +19,7 @@ const AppLayout: React.FC = () => {
     pendingOperations,
   } = useOfflineSync();
 
-  const { isPremium, setIsPremium, loading: sessionLoading } = useSession();
+  const { isPremium, setIsPremium, loading: sessionLoading, session } = useSession(); // Adicionado 'session'
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -36,12 +36,13 @@ const AppLayout: React.FC = () => {
     }
   }, [isInitialized, getAllRecords, pendingOperations.length]);
 
-  // Lógica de redirecionamento para usuários não-Premium
-  useEffect(() => {
-    if (!sessionLoading && !isPremium && location.pathname !== '/app/premium') {
-      navigate('/app/premium', { replace: true });
-    }
-  }, [isPremium, sessionLoading, location.pathname, navigate]);
+  // A lógica de redirecionamento para usuários não-Premium será removida daqui.
+  // As restrições agora serão aplicadas dentro dos componentes Premium-only.
+  // useEffect(() => {
+  //   if (!sessionLoading && !isPremium && location.pathname !== '/app/premium') {
+  //     navigate('/app/premium', { replace: true });
+  //   }
+  // }, [isPremium, sessionLoading, location.pathname, navigate]);
 
   const addOrUpdateRecord = async (record: RunRecord) => {
     const success = await saveRecordOffline(record);

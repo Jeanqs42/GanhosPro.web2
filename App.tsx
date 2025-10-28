@@ -2,29 +2,31 @@ import React from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import AppLayout from './components/AppLayout';
 import LandingPage from './src/pages/LandingPage';
-import Login from './src/pages/Login'; // Import the new Login page
+import Login from './src/pages/Login';
 import { useLocalStorage } from './hooks/useLocalStorage';
 import { useTheme } from './src/hooks/useTheme';
-import { SessionContextProvider, useSession } from './src/components/SessionContextProvider'; // Import SessionContextProvider and useSession
+import { SessionContextProvider, useSession } from './src/components/SessionContextProvider';
 
-// Componente wrapper para rotas protegidas
-const ProtectedRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const { session, loading } = useSession();
+// O ProtectedRoute não será mais usado para o aplicativo principal,
+// mas pode ser útil para rotas que *exigem* autenticação para qualquer funcionalidade.
+// Por enquanto, vamos removê-lo para permitir o acesso gratuito.
+// const ProtectedRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+//   const { session, loading } = useSession();
 
-  if (loading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-bg-default text-text-default">
-        <p className="text-lg">Carregando autenticação...</p>
-      </div>
-    );
-  }
+//   if (loading) {
+//     return (
+//       <div className="min-h-screen flex items-center justify-center bg-bg-default text-text-default">
+//         <p className="text-lg">Carregando autenticação...</p>
+//       </div>
+//     );
+//   }
 
-  if (!session) {
-    return <Navigate to="/login" replace />;
-  }
+//   if (!session) {
+//     return <Navigate to="/login" replace />;
+//   }
 
-  return <>{children}</>;
-};
+//   return <>{children}</>;
+// };
 
 const AppContent: React.FC = () => {
   useTheme(); // Inicializa o hook de tema para aplicar as variáveis CSS globalmente
@@ -40,24 +42,20 @@ const AppContent: React.FC = () => {
         {/* Rota para a página de Login */}
         <Route path="/login" element={<Login />} />
 
-        {/* Rota para a interface principal do aplicativo (protegida) */}
+        {/* Rota para a interface principal do aplicativo (agora acessível sem login) */}
         <Route 
           path="/app/*" 
-          element={
-            <ProtectedRoute>
-              <AppLayout />
-            </ProtectedRoute>
-          } 
+          element={<AppLayout />} 
         />
         
-        {/* Rota inicial: exibe a LandingPage ou redireciona para /app ou /login */}
+        {/* Rota inicial: exibe a LandingPage ou redireciona para /app */}
         <Route 
           path="/" 
           element={
             hasVisitedLanding ? (
-              <Navigate to="/app" replace /> // Se já visitou, vai para o app (que será protegido)
+              <Navigate to="/app" replace />
             ) : (
-              <LandingPage onEnterApp={handleEnterApp} /> // Se não, mostra a landing page
+              <LandingPage onEnterApp={handleEnterApp} />
             )
           } 
         />
