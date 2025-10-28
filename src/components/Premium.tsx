@@ -13,8 +13,8 @@ import { useSession } from '../components/SessionContextProvider'; // Import use
 interface PremiumProps {
   records: RunRecord[];
   settings: AppSettings;
-  // isPremium: boolean; // Now comes from context
-  // setIsPremium: (isPremium: boolean) => void; // Now comes from context
+  isPremium: boolean; // Reintroduzido como prop
+  setIsPremium: (isPremium: boolean) => void; // Reintroduzido como prop
 }
 
 type ActiveTool = 'menu' | 'insights' | 'reports' | 'periodic';
@@ -39,10 +39,10 @@ const getWeekKey = (date: Date): string => {
 // Load Stripe.js outside of a component’s render to avoid recreating the Stripe object on every render.
 const stripePromise = loadStripe(process.env.VITE_STRIPE_PUBLISHABLE_KEY!);
 
-const Premium: React.FC<PremiumProps> = ({ records, settings }) => { // Removed isPremium, setIsPremium from props
+const Premium: React.FC<PremiumProps> = ({ records, settings, isPremium, setIsPremium }) => { // Recebendo isPremium, setIsPremium via props
   const navigate = useNavigate();
   const location = useLocation(); // Use useLocation to read URL params
-  const { user, session, isPremium, setIsPremium } = useSession(); // Get user, session, isPremium, setIsPremium from context
+  const { user, session } = useSession(); // Apenas user e session do contexto
 
   const [activeTool, setActiveTool] = useState<ActiveTool>('menu');
 

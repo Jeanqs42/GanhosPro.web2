@@ -76,7 +76,7 @@ const AppLayout: React.FC = () => {
           <Route path="/" element={<Dashboard records={records} settings={settings} addOrUpdateRecord={addOrUpdateRecord} deleteRecord={deleteRecord} isPremium={isPremium} />} />
           <Route path="/history" element={<History records={records} deleteRecord={deleteRecord} settings={settings} />} />
           <Route path="/settings" element={<Settings settings={settings} setSettings={setSettings} isPremium={isPremium} />} />
-          <Route path="/premium" element={<Premium records={records} settings={settings} />} />
+          <Route path="/premium" element={<Premium records={records} settings={settings} isPremium={isPremium} setIsPremium={setIsPremium} />} />
         </Routes>
       </main>
       <footer className="fixed bottom-0 left-0 right-0 bg-bg-card border-t border-border-card shadow-lg">
