@@ -1,10 +1,11 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import toast from 'react-hot-toast';
-import { Save, Info, Calculator, Droplet, Zap, Blend, PlusCircle, Car, Wrench, Shield, FileText, Route, Crown, Loader2, Palette } from 'lucide-react';
+import { Save, Info, Calculator, Droplet, Zap, Blend, PlusCircle, Car, Wrench, Shield, FileText, Route, Crown, Loader2, Palette, LogOut } from 'lucide-react'; // Import LogOut icon
 import { AppSettings } from '../types';
 import { useLocalStorage } from '../hooks/useLocalStorage';
 import { useTheme } from '../src/hooks/useTheme';
+import { supabase } from '../src/integrations/supabase/client'; // Import Supabase client
 
 interface SettingsProps {
   settings: AppSettings;
@@ -67,6 +68,7 @@ const Settings: React.FC<SettingsProps> = ({ settings, setSettings, isPremium })
 
   const [isSavingSettings, setIsSavingSettings] = useState<boolean>(false);
   const [isCalculatingCost, setIsCalculatingCost] = useState<boolean>(false);
+  const [isLoggingOut, setIsLoggingOut] = useState<boolean>(false); // New state for logout loading
 
   const handleAdvancedCostChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { id, value } = e.target;
@@ -141,6 +143,19 @@ const Settings: React.FC<SettingsProps> = ({ settings, setSettings, isPremium })
     setCostPerKm(finalCost);
     toast.success(`Custo por KM atualizado para R$ ${finalCost}. Clique em Salvar para confirmar.`);
     setIsCalculatingCost(false);
+  };
+
+  const handleLogout = async () => {
+    setIsLoggingOut(true);
+    const { error } = await supabase.auth.signOut();
+    if (error) {
+      console.error('Error logging out:', error);
+      toast.error('Erro ao fazer logout. Tente novamente.');
+    } else {
+      toast.success('Logout realizado com sucesso!');
+      navigate('/login', { replace: true });
+    }
+    setIsLoggingOut(false);
   };
 
 
@@ -289,6 +304,17 @@ const Settings: React.FC<SettingsProps> = ({ settings, setSettings, isPremium })
             Some seus custos mensais com combustível, manutenção, seguro, depreciação e impostos. Divida o total pela quantidade de KMs que você roda em um mês para obter uma estimativa.
           </p>
         </div>
+      </div>
+
+      <div className="mt-6 bg-bg-card p-6 rounded-lg shadow-xl">
+        <h2 className="text-lg font-semibold text-center mb-4 flex items-center justify-center text-text-heading">
+            <LogOut size={20} className="mr-2 text-red-400" />
+            Sair da Conta
+        </h2>
+        <button onClick={handleLogout} disabled={isLoggingOut} className="w-full bg-red-600 hover:bg-red-700 text-white font-bold py-3 px-4 rounded-lg flex items-center justify-center transition-transform transform hover:scale-105" aria-label="Sair da Conta">
+            {isLoggingOut ? <Loader2 className="animate-spin mr-2" size={20} /> : <LogOut size={20} className="mr-2" />}
+            {isLoggingOut ? 'Saindo...' : 'Sair'}
+        </button>
       </div>
     </div>
   );

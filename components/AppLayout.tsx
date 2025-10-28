@@ -8,6 +8,7 @@ import Premium from './Premium';
 import { RunRecord, AppSettings } from '../types';
 import { useLocalStorage } from '../hooks/useLocalStorage';
 import { useOfflineSync } from '../hooks/useOfflineSync';
+import { useSession } from '../src/components/SessionContextProvider'; // Import useSession
 
 const AppLayout: React.FC = () => {
   const { 
@@ -18,9 +19,11 @@ const AppLayout: React.FC = () => {
     pendingOperations,
   } = useOfflineSync();
 
+  const { isPremium, setIsPremium } = useSession(); // Get isPremium and setIsPremium from session context
+
   const [records, setRecords] = useState<RunRecord[]>([]);
   const [settings, setSettings] = useLocalStorage<AppSettings>('ganhospro_settings', { costPerKm: 0.75 });
-  const [isPremium, setIsPremium] = useLocalStorage<boolean>('ganhospro_is_premium', false);
+  // Removed: const [isPremium, setIsPremium] = useLocalStorage<boolean>('ganhospro_is_premium', false);
 
   useEffect(() => {
     if (isInitialized) {

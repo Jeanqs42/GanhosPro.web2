@@ -1,5 +1,5 @@
 import React, { useState, useMemo, useRef, useEffect, useCallback } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom'; // Import useLocation
 import toast from 'react-hot-toast';
 import { Crown, Zap, BarChart2, Unlock, Loader2, MessageSquare, ArrowLeft, BrainCircuit, CalendarDays, Calculator, FileBarChart2, User, Bot } from 'lucide-react';
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid, Legend, AreaChart, Area, ReferenceLine, LineChart, Line } from 'recharts';
@@ -7,13 +7,14 @@ import { RunRecord, AppSettings } from '../../types';
 import { analyzeRecords, getChatFollowUp, getIntelligentReportAnalysis } from '../../services/geminiService';
 import ReactMarkdown from 'react-markdown';
 import { loadStripe } from '@stripe/stripe-js';
-import { supabase } from '../integrations/supabase/client'; // Import Supabase client
+import { supabase } from '../integrations/supabase/client';
+import { useSession } from '../components/SessionContextProvider'; // Import useSession
 
 interface PremiumProps {
   records: RunRecord[];
   settings: AppSettings;
-  isPremium: boolean;
-  setIsPremium: (isPremium: boolean) => void;
+  isPremium: boolean; // Now comes from context
+  setIsPremium: (isPremium: boolean) => void; // Now comes from context
 }
 
 type ActiveTool = 'menu' | 'insights' | 'reports' | 'periodic';
@@ -40,6 +41,9 @@ const stripePromise = loadStripe(process.env.VITE_STRIPE_PUBLISHABLE_KEY!);
 
 const Premium: React.FC<PremiumProps> = ({ records, settings, isPremium, setIsPremium }) => {
   const navigate = useNavigate();
+  const location = useLocation(); // Use useLocation to read URL params
+  const { user, session } = useSession(); // Get user and session from context
+
   const [activeTool, setActiveTool] = useState<ActiveTool>('menu');
 
   const [analysis, setAnalysis] = useState<string>(localStorage.getItem('ganhospro_analysis') || '');
@@ -69,7 +73,7 @@ const Premium: React.FC<PremiumProps> = ({ records, settings, isPremium, setIsPr
   });
   const [periodType, setPeriodType] = useState<PeriodType>('monthly');
   const [selectedPeriodKey, setSelectedPeriodKey] = useState<string | null>(null);
-  const [isUpgrading, setIsUpgrading] = useState<boolean>(false); // New state for upgrade loading
+  const [isUpgrading, setIsUpgrading] = useState<boolean>(false);
 
   const metricsInfo: { [key: string]: { label: string; unit: string } } = {
     netProfit: { label: 'Lucro Líquido', unit: 'R$' },
@@ -94,52 +98,23 @@ const Premium: React.FC<PremiumProps> = ({ records, settings, isPremium, setIsPr
     localStorage.setItem('ganhospro_chat_history', JSON.stringify(chatHistory));
   }, [analysis, chatHistory]);
 
-  const checkUserPremiumStatus = async () => {
-    const { data: { user } } = await supabase.auth.getUser();
-    if (user) {
-      const { data: profile, error } = await supabase
-        .from('profiles')
-        .select('is_premium')
-        .eq('id', user.id)
-        .single();
-
-      if (error) {
-        console.error('Error fetching user premium status:', error);
-        // If there's an error, assume not premium or handle appropriately
-        setIsPremium(false); 
-      } else if (profile) {
-        setIsPremium(profile.is_premium);
-      } else {
-        // If no profile found, assume not premium
-        setIsPremium(false);
-      }
-    } else {
-      // If no user is logged in, they are not premium
-      setIsPremium(false);
-    }
-  };
-
-  // Check for Stripe success/cancel parameters in URL and initial premium status
+  // Check for Stripe success/cancel parameters in URL
   useEffect(() => {
     const query = new URLSearchParams(location.search);
     if (query.get('success')) {
       toast.success('Assinatura Premium ativada com sucesso!');
-      checkUserPremiumStatus(); // Re-check status after successful payment
+      // The SessionContextProvider will automatically update isPremium via onAuthStateChange
       navigate('/app/premium', { replace: true }); // Clean URL
     }
     if (query.get('canceled')) {
       toast.error('Pagamento cancelado. Você pode tentar novamente.');
       navigate('/app/premium', { replace: true }); // Clean URL
     }
-
-    // Also check premium status on initial mount of the component
-    checkUserPremiumStatus();
-  }, [location.search, navigate, setIsPremium]); // Added setIsPremium to dependencies
+  }, [location.search, navigate]);
 
   const handleUpgrade = async () => {
     setIsUpgrading(true);
     try {
-      const { data: { user } } = await supabase.auth.getUser();
       if (!user) {
         toast.error('Você precisa estar logado para fazer o upgrade.');
         navigate('/login'); // Redirect to login page if not authenticated
@@ -541,6 +516,7 @@ const Premium: React.FC<PremiumProps> = ({ records, settings, isPremium, setIsPr
   };
 
   const validateReportConfig = (): string | null => {
+    if (records.length === 0) return 'Não há registros para gerar o relatório.';
     if (!reportConfig.startDate || !reportConfig.endDate) return 'Selecione um período de datas.';
     const start = new Date(reportConfig.startDate);
     const end = new Date(reportConfig.endDate);
@@ -1198,19 +1174,21 @@ const Premium: React.FC<PremiumProps> = ({ records, settings, isPremium, setIsPr
             <p className="text-lg mb-4">Atualize para o Premium por um pagamento único.</p>
             <button
                 onClick={handleUpgrade}
-                disabled={isUpgrading}
+                disabled={isUpgrading || !session} // Disable if not logged in
                 className="bg-yellow-500 hover:bg-yellow-600 text-gray-900 font-bold py-4 px-8 rounded-lg flex items-center justify-center transition-transform transform hover:scale-105 w-full text-lg"
                 aria-label="Fazer Upgrade Agora para Premium"
             >
                 {isUpgrading ? <Loader2 className="animate-spin mr-2" size={24} /> : <Unlock className="mr-2" />} 
-                {isUpgrading ? 'Processando...' : 'Fazer Upgrade Agora'}
+                {isUpgrading ? 'Processando...' : (session ? 'Fazer Upgrade Agora' : 'Faça Login para Upgrade')}
             </button>
+            {!session && <p className="text-sm text-text-muted mt-2">Você precisa estar logado para fazer o upgrade.</p>}
         </div>
       ) : (
         <>
             {activeTool === 'menu' && renderMenu()}
             {activeTool === 'insights' && renderInsightsTool()}
             {activeTool === 'reports' && renderReportsTool()}
+            {activeTool === 'periodic' && renderPeriodicTool()}
         </>
       )}
     </div>
