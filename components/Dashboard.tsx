@@ -19,7 +19,7 @@ interface InputFieldProps {
 // Memoized InputField component
 const InputField = React.memo<InputFieldProps>(({ icon, label, id, value, onChange, placeholder, type = "number", isHighlighted = false }) => (
     <div className="mb-4">
-        <label htmlFor={id} className={`flex items-center text-sm font-medium text-text-muted mb-2 ${isHighlighted ? 'font-bold text-lg text-text-default' : ''}`}> {/* Usando classes de tema */}
+        <label htmlFor={id} className={`flex items-center text-sm font-medium text-text-muted mb-2 ${isHighlighted ? 'font-bold text-lg text-text-default' : ''}`}>
             {icon}
             <span className="ml-2">{label}</span>
         </label>
@@ -29,7 +29,7 @@ const InputField = React.memo<InputFieldProps>(({ icon, label, id, value, onChan
             value={value}
             onChange={onChange}
             placeholder={placeholder}
-            className={`w-full bg-bg-card border border-border-card rounded-lg px-4 py-2 text-text-default placeholder-text-muted focus:ring-2 focus:ring-brand-primary focus:outline-none transition ${isHighlighted ? 'py-4 text-xl border-brand-primary' : ''}`} {/* Usando classes de tema */}
+            className={`w-full bg-bg-card border border-border-card rounded-lg px-4 py-2 text-text-default placeholder-text-muted focus:ring-2 focus:ring-brand-primary focus:outline-none transition ${isHighlighted ? 'py-4 text-xl border-brand-primary' : ''}`}
             step="0.01"
             min="0"
             aria-label={label}
@@ -44,6 +44,14 @@ const ResultCard = React.memo<{ title: string; value: string; color: string; }>(
         <p className={`text-2xl font-bold ${color}`}>{value}</p>
     </div>
 ));
+
+interface DashboardProps {
+    records: RunRecord[];
+    settings: AppSettings;
+    addOrUpdateRecord: (record: RunRecord) => Promise<boolean>;
+    deleteRecord: (id: string) => Promise<boolean>;
+    isPremium: boolean;
+}
 
 const Dashboard: React.FC<DashboardProps> = ({ records, settings, addOrUpdateRecord, deleteRecord, isPremium }) => {
     const location = useLocation();
