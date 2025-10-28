@@ -94,21 +94,6 @@ const Premium: React.FC<PremiumProps> = ({ records, settings, isPremium, setIsPr
     localStorage.setItem('ganhospro_chat_history', JSON.stringify(chatHistory));
   }, [analysis, chatHistory]);
 
-  // Check for Stripe success/cancel parameters in URL
-  useEffect(() => {
-    const query = new URLSearchParams(location.search);
-    if (query.get('success')) {
-      toast.success('Assinatura Premium ativada com sucesso!');
-      // Optionally, refetch user profile to update isPremium status
-      checkUserPremiumStatus();
-      navigate('/app/premium', { replace: true }); // Clean URL
-    }
-    if (query.get('canceled')) {
-      toast.error('Pagamento cancelado. Você pode tentar novamente.');
-      navigate('/app/premium', { replace: true }); // Clean URL
-    }
-  }, [location.search, navigate]);
-
   const checkUserPremiumStatus = async () => {
     const { data: { user } } = await supabase.auth.getUser();
     if (user) {
@@ -120,11 +105,36 @@ const Premium: React.FC<PremiumProps> = ({ records, settings, isPremium, setIsPr
 
       if (error) {
         console.error('Error fetching user premium status:', error);
+        // If there's an error, assume not premium or handle appropriately
+        setIsPremium(false); 
       } else if (profile) {
         setIsPremium(profile.is_premium);
+      } else {
+        // If no profile found, assume not premium
+        setIsPremium(false);
       }
+    } else {
+      // If no user is logged in, they are not premium
+      setIsPremium(false);
     }
   };
+
+  // Check for Stripe success/cancel parameters in URL and initial premium status
+  useEffect(() => {
+    const query = new URLSearchParams(location.search);
+    if (query.get('success')) {
+      toast.success('Assinatura Premium ativada com sucesso!');
+      checkUserPremiumStatus(); // Re-check status after successful payment
+      navigate('/app/premium', { replace: true }); // Clean URL
+    }
+    if (query.get('canceled')) {
+      toast.error('Pagamento cancelado. Você pode tentar novamente.');
+      navigate('/app/premium', { replace: true }); // Clean URL
+    }
+
+    // Also check premium status on initial mount of the component
+    checkUserPremiumStatus();
+  }, [location.search, navigate, setIsPremium]); // Added setIsPremium to dependencies
 
   const handleUpgrade = async () => {
     setIsUpgrading(true);
@@ -1201,7 +1211,6 @@ const Premium: React.FC<PremiumProps> = ({ records, settings, isPremium, setIsPr
             {activeTool === 'menu' && renderMenu()}
             {activeTool === 'insights' && renderInsightsTool()}
             {activeTool === 'reports' && renderReportsTool()}
-            {activeTool === 'periodic' && renderPeriodicTool()}
         </>
       )}
     </div>
