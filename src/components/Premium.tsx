@@ -1,13 +1,13 @@
 import React, { useState, useMemo, useRef, useEffect, useCallback } from 'react';
-import { useNavigate, useSearchParams } from 'react-router-dom'; // Importar useSearchParams
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import toast from 'react-hot-toast';
-import { Crown, Zap, BarChart2, Unlock, Loader2, MessageSquare, ArrowLeft, BrainCircuit, CalendarDays, Calculator, FileBarChart2, User, Bot, DollarSign } from 'lucide-react'; // Adicionado DollarSign
+import { Crown, Zap, BarChart2, Unlock, Loader2, MessageSquare, ArrowLeft, BrainCircuit, CalendarDays, Calculator, FileBarChart2, User, Bot, DollarSign } from 'lucide-react';
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid, Legend, AreaChart, Area, ReferenceLine, LineChart, Line } from 'recharts';
 import { RunRecord, AppSettings } from '../../types';
 import { analyzeRecords, getChatFollowUp, getIntelligentReportAnalysis } from '../../services/geminiService';
 import ReactMarkdown from 'react-markdown';
 import { useSession } from '../src/components/SessionContextProvider';
-import { supabase } from '../src/integrations/supabase/client'; // Importar supabase client
+import { supabase } from '../src/integrations/supabase/client';
 
 interface PremiumProps {
   records: RunRecord[];
@@ -35,7 +35,7 @@ const getWeekKey = (date: Date): string => {
 
 const Premium: React.FC<PremiumProps> = ({ records, settings }) => {
   const navigate = useNavigate();
-  const [searchParams, setSearchParams] = useSearchParams(); // Hook para ler parâmetros da URL
+  const [searchParams, setSearchParams] = useSearchParams();
   const { isPremium, refreshProfile, user } = useSession();
   const [activeTool, setActiveTool] = useState<ActiveTool>('menu');
 
@@ -66,7 +66,7 @@ const Premium: React.FC<PremiumProps> = ({ records, settings }) => {
   });
   const [periodType, setPeriodType] = useState<PeriodType>('monthly');
   const [selectedPeriodKey, setSelectedPeriodKey] = useState<string | null>(null);
-  const [isUpgrading, setIsUpgrading] = useState<boolean>(false); // Novo estado para o botão de upgrade
+  const [isUpgrading, setIsUpgrading] = useState<boolean>(false);
 
   const metricsInfo: { [key: string]: { label: string; unit: string } } = {
     netProfit: { label: 'Lucro Líquido', unit: 'R$' },
@@ -1150,7 +1150,7 @@ const Premium: React.FC<PremiumProps> = ({ records, settings }) => {
             <div className="flex flex-col gap-4">
                 <button
                     onClick={() => handleUpgrade(
-                        (import.meta as any).env.VITE_STRIPE_MONTHLY_PRICE_ID || 'YOUR_STRIPE_MONTHLY_PRICE_ID',
+                        'price_1SMAaYLfOkZUOBKq2jLxKI2F', // ID de preço mensal
                         'subscription'
                     )}
                     disabled={isUpgrading}
@@ -1158,11 +1158,11 @@ const Premium: React.FC<PremiumProps> = ({ records, settings }) => {
                     aria-label="Assinar Premium Mensal"
                 >
                     {isUpgrading ? <Loader2 className="animate-spin mr-2" size={24} /> : <DollarSign className="mr-2" />}
-                    {isUpgrading ? 'Processando...' : 'Assinar Mensal (R$XX.XX/mês)'}
+                    {isUpgrading ? 'Processando...' : 'Assinar Mensal (R$2,99/mês)'}
                 </button>
                 <button
                     onClick={() => handleUpgrade(
-                        (import.meta as any).env.VITE_STRIPE_ANNUAL_PRICE_ID || 'YOUR_STRIPE_ANNUAL_PRICE_ID',
+                        'price_1SMAd2LfOkZUOBKqCRS1J5Gm', // ID de preço anual
                         'subscription'
                     )}
                     disabled={isUpgrading}
