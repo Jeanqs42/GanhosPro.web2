@@ -1,42 +1,24 @@
-import React, { useState, useMemo, useRef, useEffect, useCallback } from 'react';
-import { useNavigate, useSearchParams } from 'react-router-dom';
+import React, { useState, useMemo, useRef, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import toast from 'react-hot-toast';
-import { Crown, Zap, BarChart2, Unlock, Loader2, MessageSquare, ArrowLeft, BrainCircuit, CalendarDays, Calculator, FileBarChart2, User, Bot, DollarSign } from 'lucide-react';
-import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid, Legend, AreaChart, Area, ReferenceLine, LineChart, Line } from 'recharts';
+import { Crown, Zap, BarChart2, Unlock, Loader2, MessageSquare, ArrowLeft, BrainCircuit, CalendarDays, Calculator, FileBarChart2, User, Bot } from 'lucide-react';
+import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid, Legend, AreaChart, Area, ReferenceLine } from 'recharts';
 import { RunRecord, AppSettings } from '../../types';
 import { analyzeRecords, getChatFollowUp, getIntelligentReportAnalysis } from '../../services/geminiService';
 import ReactMarkdown from 'react-markdown';
-import { useSession } from '../src/components/SessionContextProvider';
-import { supabase } from '../src/integrations/supabase/client';
 
 interface PremiumProps {
   records: RunRecord[];
   settings: AppSettings;
+  isPremium: boolean;
+  setIsPremium: (isPremium: boolean) => void;
 }
 
 type ActiveTool = 'menu' | 'insights' | 'reports' | 'periodic';
 type PeriodType = 'weekly' | 'monthly' | 'annual';
 
-// Helper to get the start of the week (Sunday) for a given date
-const getStartOfWeek = (date: Date): Date => {
-  const d = new Date(date);
-  d.setUTCHours(0, 0, 0, 0);
-  const day = d.getUTCDay(); // 0 for Sunday, 1 for Monday, etc.
-  const diff = d.getUTCDate() - day;
-  d.setUTCDate(diff);
-  return d;
-};
-
-// Helper to get a consistent week key (e.g., 'WYYYY-MM-DD' for Sunday)
-const getWeekKey = (date: Date): string => {
-  const startOfWeek = getStartOfWeek(date);
-  return `W${startOfWeek.toISOString().slice(0, 10)}`;
-};
-
-const Premium: React.FC<PremiumProps> = ({ records, settings }) => {
+const Premium: React.FC<PremiumProps> = ({ records, settings, isPremium, setIsPremium }) => {
   const navigate = useNavigate();
-  const [searchParams, setSearchParams] = useSearchParams();
-  const { isPremium, refreshProfile, user } = useSession();
   const [activeTool, setActiveTool] = useState<ActiveTool>('menu');
 
   const [analysis, setAnalysis] = useState<string>(localStorage.getItem('ganhospro_analysis') || '');
@@ -66,7 +48,6 @@ const Premium: React.FC<PremiumProps> = ({ records, settings }) => {
   });
   const [periodType, setPeriodType] = useState<PeriodType>('monthly');
   const [selectedPeriodKey, setSelectedPeriodKey] = useState<string | null>(null);
-  const [isUpgrading, setIsUpgrading] = useState<boolean>(false);
 
   const metricsInfo: { [key: string]: { label: string; unit: string } } = {
     netProfit: { label: 'Lucro Líquido', unit: 'R$' },
@@ -76,8 +57,7 @@ const Premium: React.FC<PremiumProps> = ({ records, settings }) => {
     totalCosts: { label: 'Custos Totais', unit: 'R$' },
     carCostOnly: { label: 'Custo do Carro', unit: 'R$' },
     additionalCostsOnly: { label: 'Custos Adicionais', unit: 'R$' },
-    kmDriven: { label: 'KM Rodados', unit: 'KM' },
-    hoursWorked: { label: 'Horas Trabalhadas', unit: 'h' },
+    kmDriven: { label: 'KM Rodados por Dia', unit: 'KM' },
   };
 
   useEffect(() => {
@@ -91,58 +71,16 @@ const Premium: React.FC<PremiumProps> = ({ records, settings }) => {
     localStorage.setItem('ganhospro_chat_history', JSON.stringify(chatHistory));
   }, [analysis, chatHistory]);
 
-  // Efeito para lidar com o retorno do Stripe
-  useEffect(() => {
-    const success = searchParams.get('success');
-    const canceled = searchParams.get('canceled');
-
-    if (success) {
-      toast.success('Assinatura Premium ativada com sucesso! Bem-vindo(a)!');
-      refreshProfile(); // Atualiza o perfil para refletir o status Premium
-      searchParams.delete('success');
-      setSearchParams(searchParams); // Limpa o parâmetro da URL
-    } else if (canceled) {
-      toast.error('Assinatura Premium cancelada. Você pode tentar novamente a qualquer momento.');
-      searchParams.delete('canceled');
-      setSearchParams(searchParams); // Limpa o parâmetro da URL
-    }
-  }, [searchParams, setSearchParams, refreshProfile]);
-
-  const handleUpgrade = async (priceId: string, mode: 'payment' | 'subscription') => {
-    if (!user) {
-      toast('Você precisa estar logado para assinar o Premium.');
-      navigate('/login');
-      return;
-    }
-
-    setIsUpgrading(true);
-    try {
-      const { data, error } = await supabase.functions.invoke('create-stripe-checkout', {
-        body: JSON.stringify({ priceId, mode }),
-      });
-
-      if (error) {
-        throw error;
-      }
-
-      if (data && data.url) {
-        window.location.href = data.url; // Redireciona para o checkout do Stripe
-      } else {
-        throw new Error('URL de checkout não recebida.');
-      }
-    } catch (error: any) {
-      console.error('Erro ao iniciar checkout do Stripe:', error);
-      toast.error(`Erro ao iniciar o pagamento: ${error.message || 'Erro desconhecido'}`);
-    } finally {
-      setIsUpgrading(false);
-    }
+  const handleUpgrade = () => {
+    setIsPremium(true);
+    toast.success('Parabéns! Você agora é um usuário Premium.');
   };
 
   const getPeriodKey = (dateStr: string, period: PeriodType): string => {
     const date = new Date(dateStr);
     date.setUTCHours(12);
     if (period === 'weekly') {
-      const firstDay = getStartOfWeek(date);
+      const firstDay = new Date(date.setDate(date.getDate() - date.getUTCDay()));
       return `W${firstDay.toISOString().slice(0, 10)}`;
     }
     if (period === 'monthly') {
@@ -154,8 +92,7 @@ const Premium: React.FC<PremiumProps> = ({ records, settings }) => {
   const formatPeriodLabel = (key: string, period: PeriodType): string => {
     if (period === 'weekly') {
       const date = new Date(key.substring(1));
-      // Garante que a formatação use UTC para evitar problemas de fuso horário
-      return `Semana ${date.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit', timeZone: 'UTC' })}`;
+      return `Semana ${date.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' })}`;
     } else if (period === 'monthly') {
       const [year, month] = key.split('-');
       return `${month}/${year.slice(2)}`;
@@ -163,196 +100,6 @@ const Premium: React.FC<PremiumProps> = ({ records, settings }) => {
       return key;
     }
   };
-
-  // Função para gerar a lista de períodos disponíveis (semanas, meses, anos)
-  const availablePeriods = useMemo(() => {
-    const periodsMap = new Map<string, string>(); // key -> label
-    const sortedRecords = [...records].sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
-
-    sortedRecords.forEach(record => {
-      if (periodType === 'weekly') {
-        const key = getPeriodKey(record.date, 'weekly');
-        periodsMap.set(key, formatPeriodLabel(key, 'weekly'));
-      } else if (periodType === 'monthly') {
-        const key = getPeriodKey(record.date, 'monthly');
-        periodsMap.set(key, formatPeriodLabel(key, 'monthly'));
-      } else { // annual
-        const key = getPeriodKey(record.date, 'annual');
-        periodsMap.set(key, formatPeriodLabel(key, 'annual'));
-      }
-    });
-
-    return Array.from(periodsMap.entries())
-      .map(([key, label]) => ({ key, label }))
-      .sort((a, b) => new Date(a.key.replace('W', '')).getTime() - new Date(b.key.replace('W', '')).getTime());
-  }, [records, periodType, formatPeriodLabel, getPeriodKey]);
-
-  // Efeito para definir o selectedPeriodKey padrão (o mais recente) ou manter a seleção
-  useEffect(() => {
-    if (availablePeriods.length > 0) {
-      const latestPeriodKey = availablePeriods[availablePeriods.length - 1].key;
-      // Só define o padrão se não houver nada selecionado ou se a seleção atual não estiver nos períodos disponíveis
-      if (!selectedPeriodKey || !availablePeriods.some(p => p.key === selectedPeriodKey)) {
-        setSelectedPeriodKey(latestPeriodKey);
-      }
-    } else if (selectedPeriodKey !== null) { // Se não há períodos disponíveis, limpa a seleção
-      setSelectedPeriodKey(null);
-    }
-  }, [periodType, availablePeriods, selectedPeriodKey]);
-
-  // Função genérica para obter dados detalhados por dia ou mês dentro de um período selecionado
-  const getDetailedPeriodData = useCallback((
-    records: RunRecord[],
-    settings: AppSettings,
-    periodType: PeriodType,
-    selectedPeriodKey: string | null,
-    metricType: 'cumulative' | 'average' | 'sum', // 'sum' para somar valores por sub-período
-    metricKey: 'netProfit' | 'kmDriven' | 'hoursWorked' | 'profitPerKm' | 'ganhosPorHora' | 'lucroLiquidoPorHora' | 'ganhosPorKmBruto' | 'margemLucro' | 'totalEarnings' | 'totalCosts'
-  ) => {
-    if (!selectedPeriodKey || selectedPeriodKey.trim() === '') {
-      return [];
-    }
-
-    const filteredRecords = records.filter((r: RunRecord) => getPeriodKey(r.date, periodType) === selectedPeriodKey)
-                                   .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
-
-    const aggregatedData = new Map<string, { sum: number; count: number; }>();
-
-    let aggregationUnit: 'day' | 'week' | 'month';
-    let subPeriodStartDate: Date;
-    let subPeriodEndDate: Date;
-
-    // Determine aggregation unit and date range for initialization
-    if (periodType === 'weekly') {
-      aggregationUnit = 'day';
-      const dateStringForStartDate = selectedPeriodKey.substring(1);
-      subPeriodStartDate = new Date(dateStringForStartDate);
-      if (isNaN(subPeriodStartDate.getTime())) {
-        return [];
-      }
-      subPeriodEndDate = new Date(subPeriodStartDate);
-      subPeriodEndDate.setDate(subPeriodStartDate.getDate() + 6);
-      if (isNaN(subPeriodEndDate.getTime())) {
-        return [];
-      }
-    } else if (periodType === 'monthly') {
-      aggregationUnit = 'week';
-      const [yearStr, monthStr] = selectedPeriodKey.split('-');
-      const year = Number(yearStr);
-      const month = Number(monthStr);
-      if (isNaN(year) || isNaN(month)) {
-        return [];
-      }
-      subPeriodStartDate = new Date(year, month - 1, 1); // First day of the month
-      subPeriodEndDate = new Date(year, month, 0); // Last day of the month
-      if (isNaN(subPeriodStartDate.getTime()) || isNaN(subPeriodEndDate.getTime())) {
-        return [];
-      }
-    } else { // annual
-      aggregationUnit = 'month';
-      const year = Number(selectedPeriodKey);
-      if (isNaN(year)) {
-        return [];
-      }
-      subPeriodStartDate = new Date(year, 0, 1); // First day of the year
-      subPeriodEndDate = new Date(year, 11, 31); // Last day of the year
-      if (isNaN(subPeriodStartDate.getTime()) || isNaN(subPeriodEndDate.getTime())) {
-        return [];
-      }
-    }
-
-    // Initialize map with all sub-periods
-    if (aggregationUnit === 'day') {
-      for (let d = new Date(subPeriodStartDate); d <= subPeriodEndDate; d.setDate(d.getDate() + 1)) {
-        const dateKey = d.toISOString().split('T')[0];
-        aggregatedData.set(dateKey, { sum: 0, count: 0 });
-      }
-    } else if (aggregationUnit === 'week') {
-      let currentWeekStart = getStartOfWeek(subPeriodStartDate);
-      while (currentWeekStart.getTime() <= subPeriodEndDate.getTime()) {
-        const weekKey = getWeekKey(currentWeekStart);
-        aggregatedData.set(weekKey, { sum: 0, count: 0 });
-        currentWeekStart.setDate(currentWeekStart.getDate() + 7);
-      }
-    } else { // aggregationUnit === 'month'
-      for (let m = new Date(subPeriodStartDate.getFullYear(), 0); m.getFullYear() === subPeriodStartDate.getFullYear(); m.setMonth(m.getMonth() + 1)) {
-        const monthKey = m.toISOString().slice(0, 7);
-        aggregatedData.set(monthKey, { sum: 0, count: 0 });
-      }
-    }
-
-    filteredRecords.forEach(record => {
-      const carCost = record.kmDriven * settings.costPerKm;
-      const additionalCosts = record.additionalCosts || 0;
-      const totalCosts = carCost + additionalCosts;
-      const netProfit = record.totalEarnings - totalCosts;
-
-      let key: string;
-      const recordDate = new Date(record.date);
-      if (aggregationUnit === 'day') {
-        key = recordDate.toISOString().split('T')[0];
-      } else if (aggregationUnit === 'week') {
-        key = getWeekKey(recordDate);
-      } else { // aggregationUnit === 'month'
-        key = recordDate.toISOString().slice(0, 7);
-      }
-
-      let valueToAdd = 0;
-      let shouldCount = false;
-
-      switch (metricKey) {
-        case 'netProfit': valueToAdd = netProfit; shouldCount = true; break;
-        case 'kmDriven': valueToAdd = record.kmDriven; shouldCount = true; break;
-        case 'hoursWorked': valueToAdd = record.hoursWorked || 0; shouldCount = true; break;
-        case 'profitPerKm': valueToAdd = record.kmDriven > 0 ? netProfit / record.kmDriven : 0; shouldCount = record.kmDriven > 0; break;
-        case 'ganhosPorHora': valueToAdd = (record.hoursWorked || 0) > 0 ? record.totalEarnings / (record.hoursWorked || 0) : 0; shouldCount = (record.hoursWorked || 0) > 0; break;
-        case 'lucroLiquidoPorHora': valueToAdd = (record.hoursWorked || 0) > 0 ? netProfit / (record.hoursWorked || 0) : 0; shouldCount = (record.hoursWorked || 0) > 0; break;
-        case 'ganhosPorKmBruto': valueToAdd = record.kmDriven > 0 ? record.totalEarnings / record.kmDriven : 0; shouldCount = record.kmDriven > 0; break;
-        case 'margemLucro': valueToAdd = record.totalEarnings > 0 ? (netProfit / record.totalEarnings) * 100 : 0; shouldCount = record.totalEarnings > 0; break;
-        case 'totalEarnings': valueToAdd = record.totalEarnings; shouldCount = true; break;
-        case 'totalCosts': valueToAdd = totalCosts; shouldCount = true; break;
-      }
-
-      const entry = aggregatedData.get(key);
-      if (entry) {
-        entry.sum += valueToAdd;
-        if (shouldCount) entry.count++;
-      } else {
-        aggregatedData.set(key, { sum: valueToAdd, count: shouldCount ? 1 : 0 });
-      }
-    });
-
-    const sortedKeys = Array.from(aggregatedData.keys()).sort((a, b) => new Date(a.replace('W', '')).getTime() - new Date(b.replace('W', '')).getTime());
-
-    let cumulativeTracker = 0;
-    const finalData = sortedKeys.map(key => {
-      const item = aggregatedData.get(key)!;
-      let displayValue: number;
-
-      if (metricType === 'cumulative') {
-        cumulativeTracker += item.sum;
-        displayValue = cumulativeTracker;
-      } else if (metricType === 'average') {
-        displayValue = item.count > 0 ? item.sum / item.count : 0;
-      } else { // metricType === 'sum'
-        displayValue = item.sum;
-      }
-
-      let nameLabel: string;
-      if (aggregationUnit === 'day') {
-        nameLabel = new Date(key).toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' });
-      } else if (aggregationUnit === 'week') {
-        nameLabel = formatPeriodLabel(key, 'weekly');
-      } else { // aggregationUnit === 'month'
-        nameLabel = formatPeriodLabel(key, 'monthly');
-      }
-      return {
-        name: nameLabel,
-        value: parseFloat(displayValue.toFixed(2)),
-      };
-    });
-    return finalData;
-  }, [records, settings, periodType, getPeriodKey, formatPeriodLabel]);
 
   const periodicData = useMemo(() => {
     const sortedRecords = [...records].sort((a: RunRecord, b: RunRecord) => new Date(a.date).getTime() - new Date(b.date).getTime());
@@ -393,61 +140,73 @@ const Premium: React.FC<PremiumProps> = ({ records, settings }) => {
     
     result.sort((a: any, b: any) => a.key.localeCompare(b.key));
 
+    if (!selectedPeriodKey && result.length > 0) {
+      setSelectedPeriodKey(result[result.length - 1].key);
+    }
+
     return result;
-  }, [records, settings, periodType, formatPeriodLabel, getPeriodKey]);
+  }, [records, settings, periodType, selectedPeriodKey]);
 
-  // Dados para Evolução do Lucro Líquido (AreaChart - cumulativo)
-  const detailedLucroLiquidoData = useMemo(() => {
-    return getDetailedPeriodData(records, settings, periodType, selectedPeriodKey, 'cumulative', 'netProfit');
-  }, [records, settings, periodType, selectedPeriodKey, getDetailedPeriodData]);
-
-  // Dados para KM Rodados (AreaChart - cumulativo)
-  const cumulativeKmData = useMemo(() => {
-    return getDetailedPeriodData(records, settings, periodType, selectedPeriodKey, 'cumulative', 'kmDriven');
-  }, [records, settings, periodType, selectedPeriodKey, getDetailedPeriodData]);
-
-  // Dados para Total de Horas Trabalhadas (AreaChart - cumulativo)
-  const cumulativeHoursData = useMemo(() => {
-    return getDetailedPeriodData(records, settings, periodType, selectedPeriodKey, 'cumulative', 'hoursWorked');
-  }, [records, settings, periodType, selectedPeriodKey, getDetailedPeriodData]);
-
-  // NOVO: Dados para Ganhos Brutos vs. Custos Totais (BarChart - total do período selecionado)
-  const currentPeriodGanhosCustosData = useMemo(() => {
+  const detailedPeriodicData = useMemo(() => {
     if (!selectedPeriodKey) return [];
-    const item = periodicData.find(p => p.key === selectedPeriodKey);
-    if (!item) return [];
-    return [{
-      name: item.name, // Rótulo do período selecionado (ex: "Semana 01/07", "07/24", "2024")
-      ganhos: item.ganhos,
-      custos: item.custos,
-    }];
-  }, [periodicData, selectedPeriodKey]);
 
-  // Dados para Desempenho de Lucro por KM (LineChart - média por sub-período)
-  const detailedLucroPorKmData = useMemo(() => {
-    return getDetailedPeriodData(records, settings, periodType, selectedPeriodKey, 'average', 'profitPerKm');
-  }, [records, settings, periodType, selectedPeriodKey, getDetailedPeriodData]);
+    const filteredRecords = records.filter((r: RunRecord) => getPeriodKey(r.date, periodType) === selectedPeriodKey)
+                                   .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
 
-  // Dados para Ganhos por Hora (LineChart - média por sub-período)
-  const detailedGanhosPorHoraData = useMemo(() => {
-    return getDetailedPeriodData(records, settings, periodType, selectedPeriodKey, 'average', 'ganhosPorHora');
-  }, [records, settings, periodType, selectedPeriodKey, getDetailedPeriodData]);
+    const dailyDataMap = new Map<string, { date: string; lucroLiquido: number }>();
+    let cumulativeProfit = 0;
 
-  // Dados para Lucro Líquido por Hora (LineChart - média por sub-período)
-  const detailedLucroLiquidoPorHoraData = useMemo(() => {
-    return getDetailedPeriodData(records, settings, periodType, selectedPeriodKey, 'average', 'lucroLiquidoPorHora');
-  }, [records, settings, periodType, selectedPeriodKey, getDetailedPeriodData]);
+    const startDate = new Date(selectedPeriodKey.includes('W') ? selectedPeriodKey.substring(1) : selectedPeriodKey);
+    let endDate = new Date(startDate);
 
-  // Dados para R$/KM Bruto (LineChart - média por sub-período)
-  const detailedGanhosPorKmBrutoData = useMemo(() => {
-    return getDetailedPeriodData(records, settings, periodType, selectedPeriodKey, 'average', 'ganhosPorKmBruto');
-  }, [records, settings, periodType, selectedPeriodKey, getDetailedPeriodData]);
+    if (periodType === 'weekly') {
+      endDate.setDate(startDate.getDate() + 6);
+    } else if (periodType === 'monthly') {
+      endDate.setMonth(startDate.getMonth() + 1);
+      endDate.setDate(0);
+    } else {
+      endDate.setFullYear(startDate.getFullYear() + 1);
+      endDate.setDate(0);
+      endDate.setMonth(11);
+    }
 
-  // Dados para Margem de Lucro (%) (LineChart - média por sub-período)
-  const detailedMargemLucroData = useMemo(() => {
-    return getDetailedPeriodData(records, settings, periodType, selectedPeriodKey, 'average', 'margemLucro');
-  }, [records, settings, periodType, selectedPeriodKey, getDetailedPeriodData]);
+    for (let d = new Date(startDate); d <= endDate; d.setDate(d.getDate() + 1)) {
+      const dateKey = d.toISOString().split('T')[0];
+      dailyDataMap.set(dateKey, { date: dateKey, lucroLiquido: 0 });
+    }
 
+    filteredRecords.forEach(record => {
+      const dateKey = new Date(record.date).toISOString().split('T')[0];
+      const carCost = record.kmDriven * settings.costPerKm;
+      const netProfit = record.totalEarnings - (record.additionalCosts || 0) - carCost;
+      
+      const existing = dailyDataMap.get(dateKey);
+      if (existing) {
+        existing.lucroLiquido += netProfit;
+      } else {
+        dailyDataMap.set(dateKey, { date: dateKey, lucroLiquido: netProfit });
+      }
+    });
+
+    const result = Array.from(dailyDataMap.values()).sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
+
+    return result.map(item => {
+      cumulativeProfit += item.lucroLiquido;
+      return {
+        name: new Date(item.date).toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' }),
+        lucroLiquido: parseFloat(cumulativeProfit.toFixed(2)),
+      };
+    });
+
+  }, [records, settings, periodType, selectedPeriodKey]);
+
+  useEffect(() => {
+    if (periodicData.length > 0) {
+      setSelectedPeriodKey(periodicData[periodicData.length - 1].key);
+    } else {
+      setSelectedPeriodKey(null);
+    }
+  }, [periodType, periodicData.length]);
 
   const handleAnalyze = async () => {
     if (records.length < 3) {
@@ -539,7 +298,6 @@ const Premium: React.FC<PremiumProps> = ({ records, settings }) => {
         case 'carCostOnly': value = carCost; break;
         case 'additionalCostsOnly': value = additionalCosts; break;
         case 'kmDriven': value = r.kmDriven; break;
-        case 'hoursWorked': value = r.hoursWorked || 0; break;
         default: value = netProfit;
       }
       return {
@@ -582,7 +340,7 @@ const Premium: React.FC<PremiumProps> = ({ records, settings }) => {
   const renderHeader = (title: string, icon?: React.ReactNode) => (
     <div className="flex items-center mb-4">
       {activeTool !== 'menu' && (
-        <button onClick={() => setActiveTool('menu')} className="p-2 rounded-full hover:bg-bg-card/50 mr-2" aria-label="Voltar ao menu Premium">
+        <button onClick={() => setActiveTool('menu')} className="p-2 rounded-full hover:bg-gray-700 mr-2" aria-label="Voltar ao menu Premium">
           <ArrowLeft size={20} />
         </button>
       )}
@@ -597,37 +355,37 @@ const Premium: React.FC<PremiumProps> = ({ records, settings }) => {
   const renderMenu = () => (
     <>
       {renderHeader('GanhosPro Premium', <Crown/>)}
-      <p className="text-center text-text-muted mb-8">
+      <p className="text-center text-gray-300 mb-8">
         Escolha uma ferramenta abaixo para turbinar sua análise.
       </p>
       <div className="space-y-4">
-        <button type="button" onClick={() => setActiveTool('insights')} aria-label="Abrir Insights com IA" className="w-full text-left bg-bg-card p-6 rounded-lg shadow-lg hover:bg-bg-card/50 cursor-pointer transition-colors border border-transparent hover:border-brand-primary">
+        <button type="button" onClick={() => setActiveTool('insights')} aria-label="Abrir Insights com IA" className="w-full text-left bg-gray-800 p-6 rounded-lg shadow-lg hover:bg-gray-700/50 cursor-pointer transition-colors border border-transparent hover:border-brand-primary">
           <div className="flex items-center mb-2">
             <BrainCircuit size={24} className="text-brand-accent mr-3" />
-            <h2 className="text-xl font-semibold text-text-heading">Insights com IA</h2>
+            <h2 className="text-xl font-semibold">Insights com IA</h2>
           </div>
-          <p className="text-text-muted text-sm">Receba uma análise completa sobre sua performance geral e converse com a IA para tirar dúvidas.</p>
+          <p className="text-gray-400 text-sm">Receba uma análise completa sobre sua performance geral e converse com a IA para tirar dúvidas.</p>
         </button>
-        <button type="button" onClick={() => setActiveTool('reports')} aria-label="Abrir Relatórios Inteligentes" className="w-full text-left bg-bg-card p-6 rounded-lg shadow-lg hover:bg-bg-card/50 cursor-pointer transition-colors border border-transparent hover:border-brand-primary">
+        <button type="button" onClick={() => setActiveTool('reports')} aria-label="Abrir Relatórios Inteligentes" className="w-full text-left bg-gray-800 p-6 rounded-lg shadow-lg hover:bg-gray-700/50 cursor-pointer transition-colors border border-transparent hover:border-brand-primary">
           <div className="flex items-center mb-2">
             <FileBarChart2 size={24} className="text-brand-accent mr-3" />
-            <h2 className="text-xl font-semibold text-text-heading">Relatórios Inteligentes</h2>
+            <h2 className="text-xl font-semibold">Relatórios Inteligentes</h2>
           </div>
-          <p className="text-text-muted text-sm">Crie relatórios personalizados com filtros, visualize em gráficos e receba um feedback rápido da IA.</p>
+          <p className="text-gray-400 text-sm">Crie relatórios personalizados com filtros, visualize em gráficos e receba um feedback rápido da IA.</p>
         </button>
-        <button type="button" onClick={() => setActiveTool('periodic')} aria-label="Abrir Análise Periódica" className="w-full text-left bg-bg-card p-6 rounded-lg shadow-lg hover:bg-bg-card/50 cursor-pointer transition-colors border border-transparent hover:border-brand-primary">
+        <button type="button" onClick={() => setActiveTool('periodic')} aria-label="Abrir Análise Periódica" className="w-full text-left bg-gray-800 p-6 rounded-lg shadow-lg hover:bg-gray-700/50 cursor-pointer transition-colors border border-transparent hover:border-brand-primary">
           <div className="flex items-center mb-2">
             <CalendarDays size={24} className="text-brand-accent mr-3" />
-            <h2 className="text-xl font-semibold text-text-heading">Análise Periódica</h2>
+            <h2 className="text-xl font-semibold">Análise Periódica</h2>
           </div>
-          <p className="text-text-muted text-sm">Compare seus ganhos, custos e lucros em gráficos semanais, mensais ou anuais.</p>
+          <p className="text-gray-400 text-sm">Compare seus ganhos, custos e lucros em gráficos semanais, mensais ou anuais.</p>
         </button>
-        <button type="button" onClick={() => navigate('/app/settings')} aria-label="Ir para Ajustes" className="w-full text-left bg-bg-card p-6 rounded-lg shadow-lg hover:bg-bg-card/50 cursor-pointer transition-colors border border-transparent hover:border-brand-primary">
+        <button type="button" onClick={() => navigate('/app/settings')} aria-label="Ir para Ajustes" className="w-full text-left bg-gray-800 p-6 rounded-lg shadow-lg hover:bg-gray-700/50 cursor-pointer transition-colors border border-transparent hover:border-brand-primary">
           <div className="flex items-center mb-2">
             <Calculator size={24} className="text-brand-accent mr-3" />
-            <h2 className="text-xl font-semibold text-text-heading">Custo por KM Preciso</h2>
+            <h2 className="text-xl font-semibold">Custo por KM Preciso</h2>
           </div>
-          <p className="text-text-muted text-sm">Acesse os Ajustes para usar a calculadora unificada e descobrir seu custo real por KM.</p>
+          <p className="text-gray-400 text-sm">Acesse os Ajustes para usar a calculadora unificada e descobrir seu custo real por KM.</p>
         </button>
       </div>
     </>
@@ -636,7 +394,7 @@ const Premium: React.FC<PremiumProps> = ({ records, settings }) => {
   const renderInsightsTool = () => (
     <div className="animate-fade-in-up">
       {renderHeader('Insights com IA', <BrainCircuit/>)}
-      <div className="bg-bg-card p-6 rounded-lg shadow-xl">
+      <div className="bg-gray-800 p-6 rounded-lg shadow-xl">
         <LoadingButton
           loading={isInsightsLoading}
           onClick={handleAnalyze}
@@ -645,9 +403,9 @@ const Premium: React.FC<PremiumProps> = ({ records, settings }) => {
           ariaLabel="Analisar meus ganhos"
         />
         {analysis && (
-          <div className="mt-6 bg-bg-card/50 p-4 rounded-lg">
+          <div className="mt-6 bg-gray-900/50 p-4 rounded-lg">
             <h3 className="font-bold text-lg mb-2 text-brand-primary">Resultado da Análise:</h3>
-            <div className="text-text-muted text-sm leading-relaxed markdown-content">
+            <div className="text-gray-300 text-sm leading-relaxed markdown-content">
               <ReactMarkdown
                 components={{
                   h1: ({node, ...props}) => <h1 className="text-2xl font-bold text-brand-primary mt-4 mb-2" {...props} />,
@@ -656,10 +414,10 @@ const Premium: React.FC<PremiumProps> = ({ records, settings }) => {
                   p: ({node, ...props}) => <p className="mb-2" {...props} />,
                   ul: ({node, ...props}) => <ul className="list-disc list-inside ml-4 mb-2 space-y-1" {...props} />,
                   ol: ({node, ...props}) => <ol className="list-decimal list-inside ml-4 mb-2 space-y-1" {...props} />,
-                  li: ({node, ...props}) => <li className="text-text-muted" {...props} />,
-                  strong: ({node, ...props}) => <strong className="font-bold text-text-default" {...props} />,
-                  em: ({node, ...props}) => <em className="italic text-text-muted" {...props} />,
-                  hr: ({node, ...props}) => <hr className="border-border-card my-4" {...props} />,
+                  li: ({node, ...props}) => <li className="text-gray-300" {...props} />,
+                  strong: ({node, ...props}) => <strong className="font-bold text-white" {...props} />,
+                  em: ({node, ...props}) => <em className="italic text-gray-400" {...props} />,
+                  hr: ({node, ...props}) => <hr className="border-gray-600 my-4" {...props} />,
                 }}
               >
                 {analysis}
@@ -669,15 +427,15 @@ const Premium: React.FC<PremiumProps> = ({ records, settings }) => {
         )}
       </div>
       {analysis && (
-        <div className="mt-6 bg-bg-card p-4 rounded-lg shadow-xl">
+        <div className="mt-6 bg-gray-800 p-4 rounded-lg shadow-xl">
           <h3 className="text-lg font-semibold mb-3 text-center text-yellow-400">Converse sobre a Análise</h3>
-          <div className="h-64 overflow-y-auto bg-bg-card/50 rounded-lg p-3 space-y-4 mb-3" aria-live="polite" role="log">
+          <div className="h-64 overflow-y-auto bg-gray-900/50 rounded-lg p-3 space-y-4 mb-3" aria-live="polite" role="log">
             {chatHistory.map((msg, index) => (
               <div key={index} className={`flex items-end gap-2 animate-fade-in-up ${msg.role === 'user' ? 'flex-row-reverse' : ''}`}>
                 <div className={`flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center ${msg.role === 'user' ? 'bg-brand-secondary' : 'bg-gray-600'}`}>
                   {msg.role === 'user' ? <User size={18} /> : <Bot size={18} />}
                 </div>
-                <div className={`max-w-xs lg:max-w-md px-3 py-2 rounded-lg text-sm ${msg.role === 'user' ? 'bg-brand-primary text-white' : 'bg-gray-700 text-text-default'}`}>
+                <div className={`max-w-xs lg:max-w-md px-3 py-2 rounded-lg text-sm ${msg.role === 'user' ? 'bg-brand-primary text-white' : 'bg-gray-700 text-gray-200'}`}>
                   {msg.parts[0].text}
                 </div>
               </div>
@@ -687,7 +445,7 @@ const Premium: React.FC<PremiumProps> = ({ records, settings }) => {
                 <div className="flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center bg-gray-600">
                   <Bot size={18} />
                 </div>
-                <div className="bg-gray-700 text-text-default px-3 py-2 rounded-lg text-sm">
+                <div className="bg-gray-700 text-gray-200 px-3 py-2 rounded-lg text-sm">
                     <Loader2 className="animate-spin w-4 h-4"/>
                 </div>
               </div>
@@ -700,7 +458,7 @@ const Premium: React.FC<PremiumProps> = ({ records, settings }) => {
               value={chatInput}
               onChange={(e: React.ChangeEvent<HTMLInputElement>) => setChatInput(e.target.value)}
               placeholder="Pergunte algo sobre o relatório..."
-              className="flex-grow bg-bg-card border border-border-card rounded-lg px-4 py-2 text-text-default placeholder-text-muted focus:ring-2 focus:ring-brand-primary focus:outline-none transition"
+              className="flex-grow bg-gray-700 border border-gray-600 rounded-lg px-4 py-2 text-white placeholder-gray-400 focus:ring-2 focus:ring-brand-primary focus:outline-none transition"
               disabled={isChatLoading}
               aria-label="Campo de entrada para chat com a IA"
             />
@@ -716,29 +474,28 @@ const Premium: React.FC<PremiumProps> = ({ records, settings }) => {
   const renderReportsTool = () => (
      <div className="animate-fade-in-up">
         {renderHeader('Relatórios Inteligentes', <FileBarChart2/>)}
-        <div className="bg-bg-card p-6 rounded-lg shadow-xl space-y-4">
+        <div className="bg-gray-800 p-6 rounded-lg shadow-xl space-y-4">
             <div className="grid grid-cols-2 gap-4">
                 <div>
-                    <label htmlFor="startDate" className="block text-sm font-medium text-text-muted mb-1">Início</label>
-                    <input type="date" id="startDate" value={reportConfig.startDate} onChange={(e: React.ChangeEvent<HTMLInputElement>) => setReportConfig(p => ({...p, startDate: e.target.value}))} className="w-full bg-bg-card border border-border-card rounded-lg px-3 py-2 text-text-default focus:ring-brand-primary focus:outline-none" aria-label="Data de início do relatório"/>
+                    <label htmlFor="startDate" className="block text-sm font-medium text-gray-300 mb-1">Início</label>
+                    <input type="date" id="startDate" value={reportConfig.startDate} onChange={(e: React.ChangeEvent<HTMLInputElement>) => setReportConfig(p => ({...p, startDate: e.target.value}))} className="w-full bg-gray-700 border border-gray-600 rounded-lg px-3 py-2 text-white focus:ring-brand-primary focus:outline-none" aria-label="Data de início do relatório"/>
                 </div>
                 <div>
-                    <label htmlFor="endDate" className="block text-sm font-medium text-text-muted mb-1">Fim</label>
-                    <input type="date" id="endDate" value={reportConfig.endDate} onChange={(e: React.ChangeEvent<HTMLInputElement>) => setReportConfig(p => ({...p, endDate: e.target.value}))} className="w-full bg-bg-card border border-border-card rounded-lg px-3 py-2 text-text-default focus:ring-brand-primary focus:outline-none" aria-label="Data de fim do relatório"/>
+                    <label htmlFor="endDate" className="block text-sm font-medium text-gray-300 mb-1">Fim</label>
+                    <input type="date" id="endDate" value={reportConfig.endDate} onChange={(e: React.ChangeEvent<HTMLInputElement>) => setReportConfig(p => ({...p, endDate: e.target.value}))} className="w-full bg-gray-700 border border-gray-600 rounded-lg px-3 py-2 text-white focus:ring-brand-primary focus:outline-none" aria-label="Data de fim do relatório"/>
                 </div>
             </div>
             <div>
-                 <label htmlFor="metric" className="block text-sm font-medium text-text-muted mb-1">Métrica</label>
-                 <select id="metric" value={reportConfig.metric} onChange={(e: React.ChangeEvent<HTMLSelectElement>) => setReportConfig(p => ({...p, metric: e.target.value}))} className="w-full bg-bg-card border border-border-card rounded-lg px-3 py-2 text-text-default focus:ring-brand-primary focus:outline-none" aria-label="Métrica do relatório">
-                    <option value="netProfit">Lucro Líquido</option>
+                 <label htmlFor="metric" className="block text-sm font-medium text-gray-300 mb-1">Métrica</label>
+                 <select id="metric" value={reportConfig.metric} onChange={(e: React.ChangeEvent<HTMLSelectElement>) => setReportConfig(p => ({...p, metric: e.target.value}))} className="w-full bg-gray-700 border border-gray-600 rounded-lg px-3 py-2 text-white focus:ring-brand-primary focus:outline-none" aria-label="Métrica do relatório">
+                    <option value="netProfit">Lucro Líquido por Dia</option>
                     <option value="profitPerKm">Lucro por KM</option>
-                    <option value="grossEarnings">Ganhos Brutos</option>
+                    <option value="grossEarnings">Ganhos Brutos por Dia</option>
                     <option value="grossEarningsPerKm">R$/KM Bruto</option>
-                    <option value="totalCosts">Custos Totais</option>
-                    <option value="carCostOnly">Custo do Carro</option>
-                    <option value="additionalCostsOnly">Custos Adicionais</option>
-                    <option value="kmDriven">KM Rodados</option>
-                    <option value="hoursWorked">Horas Trabalhadas</option>
+                    <option value="totalCosts">Custos Totais por Dia</option>
+                    <option value="carCostOnly">Custo do Carro por Dia</option>
+                    <option value="additionalCostsOnly">Custos Adicionais por Dia</option>
+                    <option value="kmDriven">KM Rodados por Dia</option>
                  </select>
             </div>
             <LoadingButton
@@ -753,32 +510,21 @@ const Premium: React.FC<PremiumProps> = ({ records, settings }) => {
         {isReportLoading && <div className="text-center mt-6"><Loader2 className="animate-spin mx-auto w-8 h-8 text-brand-primary" /></div>}
         
         {reportData.length > 0 && !isReportLoading && (
-            <div className="mt-6 bg-bg-card p-4 rounded-lg shadow-xl animate-fade-in-up">
+            <div className="mt-6 bg-gray-800 p-4 rounded-lg shadow-xl animate-fade-in-up">
                 <h3 className="font-bold text-lg mb-4 text-brand-primary text-center">Resultado do Relatório</h3>
                 <div className="w-full h-64">
                     <ResponsiveContainer>
                         <BarChart data={reportData} margin={{ top: 5, right: 20, left: -10, bottom: 5 }}>
                             <CartesianGrid strokeDasharray="3 3" stroke="#4a5568" />
                             <XAxis dataKey="date" stroke="#a0aec0" fontSize={12} />
-                            <YAxis 
-                                stroke="#a0aec0" 
-                                fontSize={12} 
-                                tickFormatter={(value: number) => {
-                                    const unit = metricsInfo[reportConfig.metric].unit;
-                                    if (unit === 'KM') return `${value} KM`;
-                                    if (unit === 'h') return `${value} h`;
-                                    return `R$${value}`;
-                                }} 
-                            />
+                            <YAxis stroke="#a0aec0" fontSize={12} tickFormatter={(value: number) => metricsInfo[reportConfig.metric].unit === 'KM' ? `${value} KM` : `R$${value}`} />
                             <Tooltip
-                                contentStyle={{ backgroundColor: 'var(--color-bg-default)', border: '1px solid var(--color-border-card)', color: 'var(--color-text-default)' }}
-                                labelStyle={{ color: 'var(--color-brand-primary)' }}
-                                formatter={(value: number) => {
-                                    const unit = metricsInfo[reportConfig.metric].unit;
-                                    if (unit === 'KM') return `${Number(value).toFixed(1)} KM`;
-                                    if (unit === 'h') return `${Number(value).toFixed(1)} h`;
-                                    return `${Number(value).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL'})}`;
-                                }}
+                                contentStyle={{ backgroundColor: '#1f2937', border: '1px solid #4a5568', color: '#f9fafb' }}
+                                labelStyle={{ color: '#10b981' }}
+                                formatter={(value: number) => [
+                                    metricsInfo[reportConfig.metric].unit === 'KM' ? `${Number(value).toFixed(1)} KM` : `${Number(value).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL'})}`,
+                                    metricsInfo[reportConfig.metric].label
+                                ]}
                              />
                             <Bar dataKey="value" fill="#10b981" activeBar={false} />
                         </BarChart>
@@ -790,35 +536,31 @@ const Premium: React.FC<PremiumProps> = ({ records, settings }) => {
                     <div className="mt-4 bg-gradient-to-r from-brand-primary/20 to-brand-secondary/20 p-4 rounded-lg border border-brand-primary/30">
                         <h4 className="font-semibold text-brand-primary mb-3 text-center">📊 Resumo da Consulta</h4>
                         <div className="grid grid-cols-3 gap-4 text-center">
-                            <div className="bg-bg-card/50 p-3 rounded-lg">
-                                <p className="text-xs text-text-muted mb-1">Total</p>
-                                <p className="font-bold text-text-default">
+                            <div className="bg-gray-800/50 p-3 rounded-lg">
+                                <p className="text-xs text-gray-400 mb-1">Total</p>
+                                <p className="font-bold text-white">
                                     {metricsInfo[reportConfig.metric].unit === 'KM' 
                                         ? `${reportTotals.total.toFixed(1)} KM`
-                                        : metricsInfo[reportConfig.metric].unit === 'h'
-                                            ? `${reportTotals.total.toFixed(1)} h`
-                                            : reportTotals.total.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })
+                                        : reportTotals.total.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })
                                     }
                                 </p>
                             </div>
-                            <div className="bg-bg-card/50 p-3 rounded-lg">
-                                <p className="text-xs text-text-muted mb-1">Média Diária</p>
-                                <p className="font-bold text-text-default">
+                            <div className="bg-gray-800/50 p-3 rounded-lg">
+                                <p className="text-xs text-gray-400 mb-1">Média Diária</p>
+                                <p className="font-bold text-white">
                                     {metricsInfo[reportConfig.metric].unit === 'KM' 
                                         ? `${reportTotals.average.toFixed(1)} KM`
-                                        : metricsInfo[reportConfig.metric].unit === 'h'
-                                            ? `${reportTotals.average.toFixed(1)} h`
-                                            : reportTotals.average.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })
+                                        : reportTotals.average.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })
                                     }
                                 </p>
                             </div>
-                            <div className="bg-bg-card/50 p-3 rounded-lg">
-                                <p className="text-xs text-text-muted mb-1">Período</p>
-                                <p className="font-bold text-text-default">{reportTotals.days} dias</p>
+                            <div className="bg-gray-800/50 p-3 rounded-lg">
+                                <p className="text-xs text-gray-400 mb-1">Período</p>
+                                <p className="font-bold text-white">{reportTotals.days} dias</p>
                             </div>
                         </div>
                         <div className="mt-3 text-center">
-                            <p className="text-xs text-text-muted">
+                            <p className="text-xs text-gray-400">
                                 {metricsInfo[reportConfig.metric].label} • {new Date(reportConfig.startDate).toLocaleDateString('pt-BR')} até {new Date(reportConfig.endDate).toLocaleDateString('pt-BR')}
                             </p>
                         </div>
@@ -826,8 +568,8 @@ const Premium: React.FC<PremiumProps> = ({ records, settings }) => {
                 )}
                 
                 {reportInsight && (
-                    <div className="mt-4 bg-bg-card/50 p-3 rounded-lg">
-                         <p className="text-sm text-text-muted text-center">{reportInsight}</p>
+                    <div className="mt-4 bg-gray-900/50 p-3 rounded-lg">
+                         <p className="text-sm text-gray-300 text-center">{reportInsight}</p>
                     </div>
                 )}
             </div>
@@ -835,332 +577,418 @@ const Premium: React.FC<PremiumProps> = ({ records, settings }) => {
      </div>
   );
 
-  const renderPeriodicTool = () => {
-    const totals = periodicData.find(p => p.key === selectedPeriodKey) || { ganhos: 0, custos: 0, lucroLiquido: 0, kmRodados: 0, totalHoursWorked: 0, ganhosPorHora: 0, lucroLiquidoPorHora: 0 };
+  // Helper para calcular a mudança percentual
+  const calculateChange = (current: number, previous: number): string => {
+    if (previous === 0) {
+      return current > 0 ? '+∞%' : 'N/A'; // Aumento infinito se o anterior era 0 e o atual é positivo
+    }
+    const change = ((current - previous) / previous) * 100;
+    if (change > 0) return `+${change.toFixed(1)}%`;
+    if (change < 0) return `${change.toFixed(1)}%`;
+    return '0%';
+  };
 
-    const tooltipContentStyle = { backgroundColor: 'var(--color-bg-default)', border: '1px solid var(--color-border-card)', color: 'var(--color-text-default)' };
-    const tooltipLabelStyle = { color: 'var(--color-brand-primary)' };
+  const renderPeriodicTool = () => {
+    const totals = periodicData.reduce((acc: { ganhos: number; custos: number; lucroLiquido: number; kmRodados: number; totalHoursWorked: number; ganhosPorHora: number; lucroLiquidoPorHora: number }, item: any) => {
+        acc.ganhos += item.ganhos;
+        acc.custos += item.custos;
+        acc.lucroLiquido += item.lucroLiquido;
+        acc.kmRodados += item.kmRodados;
+        acc.totalHoursWorked += item.totalHoursWorked;
+        // Para ganhosPorHora e lucroLiquidoPorHora, a média é mais relevante para o total
+        // Mas para o resumo, vamos somar e depois calcular a média se necessário, ou usar os valores já calculados por período.
+        // Por enquanto, para o resumo geral, manteremos a soma dos totais e calcularemos a média no display se for o caso.
+        return acc;
+    }, { ganhos: 0, custos: 0, lucroLiquido: 0, kmRodados: 0, totalHoursWorked: 0, ganhosPorHora: 0, lucroLiquidoPorHora: 0 });
+
+    // Comparação de Períodos
+    const lastPeriodData = periodicData.length > 0 ? periodicData[periodicData.length - 1] : null;
+    const previousPeriodData = periodicData.length > 1 ? periodicData[periodicData.length - 2] : null;
+
+    const comparisonMetrics = [
+      { label: 'Lucro Líquido', current: lastPeriodData?.lucroLiquido, previous: previousPeriodData?.lucroLiquido, unit: 'R$' },
+      { label: 'Ganhos Brutos', current: lastPeriodData?.ganhos, previous: previousPeriodData?.ganhos, unit: 'R$' },
+      { label: 'Custos Totais', current: lastPeriodData?.custos, previous: previousPeriodData?.custos, unit: 'R$' },
+      { label: 'KM Rodados', current: lastPeriodData?.kmRodados, previous: previousPeriodData?.kmRodados, unit: 'KM' },
+      { label: 'Horas Trabalhadas', current: lastPeriodData?.totalHoursWorked, previous: previousPeriodData?.totalHoursWorked, unit: 'h' },
+      { label: 'Ganhos por Hora', current: lastPeriodData?.ganhosPorHora, previous: previousPeriodData?.ganhosPorHora, unit: 'R$/h' },
+      { label: 'Lucro por Hora', current: lastPeriodData?.lucroLiquidoPorHora, previous: previousPeriodData?.lucroLiquidoPorHora, unit: 'R$/h' },
+    ];
+
+    const tooltipContentStyle = { backgroundColor: '#1f2937', border: '1px solid #4a5568', color: '#f9fafb' };
+    const tooltipLabelStyle = { color: '#10b981' };
 
     return (
         <div className="animate-fade-in-up">
             {renderHeader('Análise Periódica', <CalendarDays/>)}
-            <div className="bg-bg-card p-4 rounded-lg shadow-xl mb-4">
-                <div className="flex justify-center bg-bg-card/50 rounded-lg p-1 mb-4">
+            <div className="bg-gray-800 p-4 rounded-lg shadow-xl mb-4">
+                <div className="flex justify-center bg-gray-700/50 rounded-lg p-1">
                     {(['Semanal', 'Mensal', 'Anual'] as const).map(p => {
                         const periodMap: Record<'Semanal' | 'Mensal' | 'Anual', PeriodType> = { Semanal: 'weekly', Mensal: 'monthly', Anual: 'annual' };
                         const value = periodMap[p];
                         return (
-                             <button key={p} onClick={() => setPeriodType(value)} aria-label={`Selecionar análise ${p.toLowerCase()}`} className={`flex-1 py-2 text-sm font-medium rounded-md transition-colors ${periodType === value ? 'bg-brand-primary text-white shadow' : 'text-text-muted hover:bg-gray-600'}`}>
+                             <button key={p} onClick={() => setPeriodType(value)} aria-label={`Selecionar análise ${p.toLowerCase()}`} className={`flex-1 py-2 text-sm font-medium rounded-md transition-colors ${periodType === value ? 'bg-brand-primary text-white shadow' : 'text-gray-300 hover:bg-gray-600'}`}>
                                 {p}
                             </button>
                         )
                     })}
                 </div>
-
-                {availablePeriods.length > 0 && (
-                    <div className="mb-4">
-                        <label htmlFor="period-select" className="sr-only">Selecionar Período</label>
-                        <select
-                            id="period-select"
-                            value={selectedPeriodKey || ''}
-                            onChange={(e) => setSelectedPeriodKey(e.target.value)}
-                            className="w-full bg-bg-card border border-border-card rounded-lg px-3 py-2 text-text-default focus:ring-brand-primary focus:outline-none"
-                        >
-                            {availablePeriods.map(p => (
-                                <option key={p.key} value={p.key}>
-                                    {p.label}
-                                </option>
-                            ))}
-                        </select>
-                    </div>
-                )}
             </div>
 
-            {periodicData.length === 0 || !selectedPeriodKey ? (
-                 <div className="text-center text-text-muted mt-10 bg-bg-card p-6 rounded-lg">
+            {periodicData.length === 0 ? (
+                 <div className="text-center text-gray-400 mt-10 bg-gray-800 p-6 rounded-lg">
                     <BarChart2 size={48} className="mx-auto mb-4" />
                     <h2 className="text-xl font-semibold">Dados Insuficientes</h2>
-                    <p className="mt-2">Não há registros suficientes para gerar uma análise {periodType} ou o período selecionado.</p>
+                    <p className="mt-2">Não há registros suficientes para gerar uma análise {periodType}.</p>
                 </div>
             ) : (
-                <div>
-                    <div className="grid grid-cols-4 gap-2 mb-4 text-center">
-                        <div className="bg-bg-card p-2 rounded-lg"><p className="text-xs text-blue-400">Ganhos</p><p className="font-bold text-sm text-blue-400">{totals.ganhos.toLocaleString('pt-BR', {style: 'currency', currency: 'BRL'})}</p></div>
-                        <div className="bg-bg-card p-2 rounded-lg"><p className="text-xs text-yellow-400">Custos</p><p className="font-bold text-sm text-yellow-400">{totals.custos.toLocaleString('pt-BR', {style: 'currency', currency: 'BRL'})}</p></div>
-                        <div className="bg-bg-card p-2 rounded-lg"><p className="text-xs text-green-400">Lucro</p><p className="font-bold text-sm text-green-400">{totals.lucroLiquido.toLocaleString('pt-BR', {style: 'currency', currency: 'BRL'})}</p></div>
-                        <div className="bg-bg-card p-2 rounded-lg"><p className="text-xs text-purple-400">Horas</p><p className="font-bold text-sm text-purple-400">{totals.totalHoursWorked.toFixed(1)} h</p></div>
+                <>
+                <div className="grid grid-cols-4 gap-2 mb-4 text-center">
+                    <div className="bg-gray-800 p-2 rounded-lg"><p className="text-xs text-gray-400">Ganhos</p><p className="font-bold text-sm text-blue-400">{totals.ganhos.toLocaleString('pt-BR', {style: 'currency', currency: 'BRL'})}</p></div>
+                    <div className="bg-gray-800 p-2 rounded-lg"><p className="text-xs text-gray-400">Custos</p><p className="font-bold text-sm text-brand-accent">{totals.custos.toLocaleString('pt-BR', {style: 'currency', currency: 'BRL'})}</p></div>
+                    <div className="bg-gray-800 p-2 rounded-lg"><p className="text-xs text-gray-400">Lucro</p><p className="font-bold text-sm text-brand-primary">{totals.lucroLiquido.toLocaleString('pt-BR', {style: 'currency', currency: 'BRL'})}</p></div>
+                    <div className="bg-gray-800 p-2 rounded-lg"><p className="font-bold text-sm text-purple-400">{totals.totalHoursWorked.toFixed(1)} h</p></div>
+                </div>
+
+                {/* Novo: Resumo de Comparação de Períodos */}
+                {previousPeriodData && lastPeriodData && (
+                  <div className="bg-gray-800 p-4 rounded-lg shadow-xl mb-6 animate-fade-in-up">
+                    <h3 className="font-semibold text-base mb-4 text-brand-primary text-center">
+                      Comparação: {lastPeriodData.name} vs {previousPeriodData.name}
+                    </h3>
+                    <div className="grid grid-cols-2 gap-3 text-center">
+                      {comparisonMetrics.map((metric, index) => (
+                        <div key={index} className="bg-gray-700/50 p-2 rounded-lg">
+                          <p className="text-xs text-gray-400 mb-1">{metric.label}</p>
+                          <p className={`font-bold text-sm ${
+                            (metric.current || 0) >= (metric.previous || 0) ? 'text-green-400' : 'text-red-400'
+                          }`}>
+                            {calculateChange(metric.current || 0, metric.previous || 0)}
+                          </p>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                <div className="space-y-6">
+                    {/* Graph 1: Ganhos Brutos vs. Custos Totais */}
+                    <div className="bg-gray-800 p-4 rounded-lg shadow-xl">
+                        <h3 className="font-semibold text-base mb-4 text-brand-primary text-center">Ganhos Brutos vs. Custos Totais</h3>
+                        <div className="w-full h-60">
+                            <ResponsiveContainer>
+                                <BarChart data={periodicData} margin={{ top: 5, right: 5, left: -25, bottom: 5 }}>
+                                    <defs>
+                                        <linearGradient id="gradientGanhos" x1="0" y1="0" x2="0" y2="1">
+                                            <stop offset="5%" stopColor="#10b981" stopOpacity={0.8}/> {/* brand-primary */}
+                                            <stop offset="95%" stopColor="#10b981" stopOpacity={0.3}/>
+                                        </linearGradient>
+                                        <linearGradient id="gradientCustos" x1="0" y1="0" x2="0" y2="1">
+                                            <stop offset="5%" stopColor="#f59e0b" stopOpacity={0.8}/> {/* brand-accent */}
+                                            <stop offset="95%" stopColor="#f59e0b" stopOpacity={0.3}/>
+                                        </linearGradient>
+                                    </defs>
+                                    <CartesianGrid strokeDasharray="3 3" stroke="#4a5568" />
+                                    <XAxis dataKey="name" stroke="#a0aec0" fontSize={11} />
+                                    <YAxis stroke="#a0aec0" fontSize={11} tickFormatter={(value: number) => `${Number(value).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL'})}`} />
+                                    <Tooltip 
+                                        contentStyle={tooltipContentStyle}
+                                        labelStyle={tooltipLabelStyle}
+                                        formatter={(value: number, name: string) => [`${Number(value).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL'})}`, name === 'ganhos' ? 'Ganhos' : 'Custos']} 
+                                    />
+                                    <Legend wrapperStyle={{fontSize: "12px"}}/>
+                                    <Bar dataKey="ganhos" fill="url(#gradientGanhos)" name="Ganhos" activeBar={false} />
+                                    <Bar dataKey="custos" fill="url(#gradientCustos)" name="Custos" activeBar={false} />
+                                </BarChart>
+                            </ResponsiveContainer>
+                        </div>
+                    </div>
+                     {/* Graph 2: Evolução do Lucro Líquido (AreaChart) */}
+                    <div className="bg-gray-800 p-4 rounded-lg shadow-xl">
+                        <h3 className="font-semibold text-base mb-4 text-brand-primary text-center">Evolução do Lucro Líquido</h3>
+                        {periodicData.length > 0 && (
+                          <div className="mb-4">
+                            <label htmlFor="period-select" className="sr-only">Selecionar Período</label>
+                            <select
+                              id="period-select"
+                              value={selectedPeriodKey || ''}
+                              onChange={(e) => setSelectedPeriodKey(e.target.value)}
+                              className="w-full bg-gray-700 border border-gray-600 rounded-lg px-3 py-2 text-white focus:ring-brand-primary focus:outline-none"
+                            >
+                              {periodicData.map(p => (
+                                <option key={p.key} value={p.key}>
+                                  {p.name}
+                                </option>
+                              ))}
+                            </select>
+                          </div>
+                        )}
+                        <div className="w-full h-60">
+                            <ResponsiveContainer>
+                                <AreaChart data={detailedPeriodicData} margin={{ top: 5, right: 5, left: -25, bottom: 5 }}>
+                                    <defs>
+                                        <linearGradient id="colorLucro" x1="0" y1="0" x2="0" y2="1">
+                                            <stop offset="5%" stopColor="#10b981" stopOpacity={0.8}/>
+                                            <stop offset="95%" stopColor="#10b981" stopOpacity={0}/>
+                                        </linearGradient>
+                                        <linearGradient id="colorPrejuizo" x1="0" y1="0" x2="0" y2="1">
+                                            <stop offset="5%" stopColor="#ef4444" stopOpacity={0.8}/>
+                                            <stop offset="95%" stopColor="#ef4444" stopOpacity={0}/>
+                                        </linearGradient>
+                                    </defs>
+                                    <CartesianGrid strokeDasharray="3 3" stroke="#4a5568" />
+                                    <XAxis dataKey="name" stroke="#a0aec0" fontSize={11} />
+                                    <YAxis stroke="#a0aec0" fontSize={11} tickFormatter={(value: number) => `${Number(value).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL'})}`} />
+                                    <Tooltip 
+                                        contentStyle={tooltipContentStyle}
+                                        labelStyle={tooltipLabelStyle}
+                                        formatter={(value: number) => [`${Number(value).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL'})}`, 'Lucro Líquido Acumulado']} 
+                                    />
+                                    <Legend wrapperStyle={{fontSize: "12px"}}/> {/* Adicionado Legend */}
+                                    <ReferenceLine y={0} stroke="#ef4444" strokeDasharray="3 3" />
+                                    <Area type="monotone" dataKey="lucroLiquido" stroke="#10b981" fillOpacity={1} fill="url(#colorLucro)" name="Lucro Líquido" />
+                                </AreaChart>
+                            </ResponsiveContainer>
+                        </div>
+                    </div>
+                     {/* Graph 3: Desempenho de Lucro por KM (R$) */}
+                    <div className="bg-gray-800 p-4 rounded-lg shadow-xl">
+                        <h3 className="font-semibold text-base mb-4 text-brand-primary text-center">Desempenho de Lucro por KM (R$)</h3>
+                        <div className="w-full h-60">
+                           <ResponsiveContainer>
+                                <BarChart data={periodicData} margin={{ top: 5, right: 5, left: -25, bottom: 5 }}>
+                                    <defs>
+                                        <linearGradient id="gradientLucroKm" x1="0" y1="0" x2="0" y2="1">
+                                            <stop offset="5%" stopColor="#10b981" stopOpacity={0.8}/> {/* brand-primary */}
+                                            <stop offset="95%" stopColor="#10b981" stopOpacity={0.3}/>
+                                        </linearGradient>
+                                    </defs>
+                                    <CartesianGrid strokeDasharray="3 3" stroke="#4a5568" />
+                                    <XAxis dataKey="name" stroke="#a0aec0" fontSize={11} />
+                                    <YAxis stroke="#a0aec0" fontSize={11} tickFormatter={(value: number) => `${Number(value).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL'})}`} />
+                                    <Tooltip 
+                                        contentStyle={tooltipContentStyle}
+                                        labelStyle={tooltipLabelStyle}
+                                        formatter={(value: number) => [`${Number(value).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL'})}`, 'Lucro/KM']} 
+                                    />
+                                    <Legend wrapperStyle={{fontSize: "12px"}}/>
+                                    <Bar dataKey="lucroPorKm" name="Lucro/KM" fill="url(#gradientLucroKm)" activeBar={false} />
+                                </BarChart>
+                            </ResponsiveContainer>
+                        </div>
                     </div>
 
-                    <div className="space-y-6">
-                        {/* Graph 1: Ganhos Brutos vs. Custos Totais (BarChart - Total do Período) */}
-                        <div className="bg-bg-card p-4 rounded-lg shadow-xl">
-                            <h3 className="font-semibold text-base mb-4 text-brand-primary text-center">Ganhos Brutos vs. Custos Totais</h3>
-                            <div className="w-full h-60">
-                                <ResponsiveContainer>
-                                    <BarChart data={currentPeriodGanhosCustosData} margin={{ top: 5, right: 5, left: -25, bottom: 5 }}>
-                                        <defs>
-                                            <linearGradient id="gradientGanhos" x1="0" y1="0" x2="0" y2="1">
-                                                <stop offset="5%" stopColor="#2563eb" stopOpacity={0.8}/>
-                                                <stop offset="95%" stopColor="#2563eb" stopOpacity={0.3}/>
-                                            </linearGradient>
-                                            <linearGradient id="gradientCustos" x1="0" y1="0" x2="0" y2="1">
-                                                <stop offset="5%" stopColor="#f59e0b" stopOpacity={0.8}/>
-                                                <stop offset="95%" stopColor="#f59e0b" stopOpacity={0.3}/>
-                                            </linearGradient>
-                                        </defs>
-                                        <CartesianGrid strokeDasharray="3 3" stroke="var(--color-border-card)" />
-                                        <XAxis dataKey="name" stroke="var(--color-text-muted)" fontSize={11} />
-                                        <YAxis stroke="var(--color-text-muted)" fontSize={11} tickFormatter={(value: number) => `${Number(value).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL'})}`} />
-                                        <Tooltip 
-                                            contentStyle={tooltipContentStyle}
-                                            labelStyle={tooltipLabelStyle}
-                                            formatter={(value: number) => `${Number(value).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL'})}`} 
-                                        />
-                                        <Legend wrapperStyle={{fontSize: "12px", color: 'var(--color-text-default)'}}/>
-                                        <Bar dataKey="ganhos" fill="url(#gradientGanhos)" name="Ganhos" activeBar={false} />
-                                        <Bar dataKey="custos" fill="url(#gradientCustos)" name="Custos" activeBar={false} />
-                                    </BarChart>
-                                </ResponsiveContainer>
-                            </div>
+                    {/* Graph 4: KM Rodados */}
+                    <div className="bg-gray-800 p-4 rounded-lg shadow-xl">
+                        <h3 className="font-semibold text-base mb-4 text-brand-primary text-center">KM Rodados</h3>
+                        <div className="w-full h-60">
+                           <ResponsiveContainer>
+                                <BarChart data={periodicData} margin={{ top: 5, right: 5, left: -25, bottom: 5 }}>
+                                    <defs>
+                                        <linearGradient id="gradientKm" x1="0" y1="0" x2="0" y2="1">
+                                            <stop offset="5%" stopColor="#60a5fa" stopOpacity={0.8}/> {/* blue-400 */}
+                                            <stop offset="95%" stopColor="#60a5fa" stopOpacity={0.3}/>
+                                        </linearGradient>
+                                    </defs>
+                                    <CartesianGrid strokeDasharray="3 3" stroke="#4a5568" />
+                                    <XAxis dataKey="name" stroke="#a0aec0" fontSize={11} />
+                                    <YAxis stroke="#a0aec0" fontSize={11} tickFormatter={(value: number) => `${value} KM`} />
+                                    <Tooltip 
+                                        contentStyle={tooltipContentStyle}
+                                        labelStyle={tooltipLabelStyle}
+                                        formatter={(value: number) => [`${Number(value).toFixed(1)} KM`, 'KM Rodados']} 
+                                    />
+                                    <Legend wrapperStyle={{fontSize: "12px"}}/>
+                                    <Bar dataKey="kmRodados" name="KM" fill="url(#gradientKm)" activeBar={false} />
+                                </BarChart>
+                            </ResponsiveContainer>
                         </div>
-                        {/* Graph 2: Evolução do Lucro Líquido (AreaChart) */}
-                        <div className="bg-bg-card p-4 rounded-lg shadow-xl">
-                            <h3 className="font-semibold text-base mb-4 text-brand-primary text-center">Evolução do Lucro Líquido</h3>
-                            <div className="w-full h-60">
-                                <ResponsiveContainer>
-                                    <AreaChart data={detailedLucroLiquidoData} margin={{ top: 5, right: 5, left: -25, bottom: 5 }}>
-                                        <defs>
-                                            <linearGradient id="colorLucro" x1="0" y1="0" x2="0" y2="1">
-                                                <stop offset="5%" stopColor="var(--color-brand-primary)" stopOpacity={0.8}/>
-                                                <stop offset="95%" stopColor="var(--color-brand-primary)" stopOpacity={0}/>
-                                            </linearGradient>
-                                            <linearGradient id="colorPrejuizo" x1="0" y1="0" x2="0" y2="1">
-                                                <stop offset="5%" stopColor="#ef4444" stopOpacity={0.8}/>
-                                                <stop offset="95%" stopColor="#ef4444" stopOpacity={0}/>
-                                            </linearGradient>
-                                        </defs>
-                                        <CartesianGrid strokeDasharray="3 3" stroke="var(--color-border-card)" />
-                                        <XAxis dataKey="name" stroke="var(--color-text-muted)" fontSize={11} />
-                                        <YAxis stroke="var(--color-text-muted)" fontSize={11} tickFormatter={(value: number) => `${Number(value).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL'})}`} />
-                                        <Tooltip 
-                                            contentStyle={tooltipContentStyle}
-                                            labelStyle={tooltipLabelStyle}
-                                            formatter={(value: number) => `${Number(value).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL'})}`} 
-                                        />
-                                        <ReferenceLine y={0} stroke="#ef4444" strokeDasharray="3 3" />
-                                        <Area type="monotone" dataKey="value" stroke="var(--color-brand-primary)" fillOpacity={1} fill="url(#colorLucro)" name="Lucro Líquido" />
-                                    </AreaChart>
-                                </ResponsiveContainer>
-                            </div>
-                        </div>
-                        {/* Graph 3: Desempenho de Lucro por KM (R$) (LineChart) */}
-                        <div className="bg-bg-card p-4 rounded-lg shadow-xl">
-                            <h3 className="font-semibold text-base mb-4 text-brand-primary text-center">Desempenho de Lucro por KM (R$)</h3>
-                            <div className="w-full h-60">
-                                <ResponsiveContainer>
-                                    <LineChart data={detailedLucroPorKmData} margin={{ top: 5, right: 5, left: -25, bottom: 5 }}>
-                                        <CartesianGrid strokeDasharray="3 3" stroke="var(--color-border-card)" />
-                                        <XAxis dataKey="name" stroke="var(--color-text-muted)" fontSize={11} />
-                                        <YAxis stroke="var(--color-text-muted)" fontSize={11} tickFormatter={(value: number) => `${Number(value).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL'})}`} />
-                                        <Tooltip 
-                                            contentStyle={tooltipContentStyle}
-                                            labelStyle={tooltipLabelStyle}
-                                            formatter={(value: number) => `${Number(value).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL'})}/KM`} 
-                                        />
-                                        <Line type="monotone" dataKey="value" name="Lucro/KM" stroke="#8b5cf6" activeDot={{ r: 6 }} />
-                                    </LineChart>
-                                </ResponsiveContainer>
-                            </div>
-                        </div>
+                    </div>
 
-                        {/* Graph 4: KM Rodados (AreaChart) */}
-                        <div className="bg-bg-card p-4 rounded-lg shadow-xl">
-                            <h3 className="font-semibold text-base mb-4 text-brand-primary text-center">KM Rodados</h3>
-                            <div className="w-full h-60">
-                                <ResponsiveContainer>
-                                    <AreaChart data={cumulativeKmData} margin={{ top: 5, right: 5, left: -25, bottom: 5 }}>
-                                        <defs>
-                                            <linearGradient id="gradientKm" x1="0" y1="0" x2="0" y2="1">
-                                                <stop offset="5%" stopColor="#06b6d4" stopOpacity={0.8}/>
-                                                <stop offset="95%" stopColor="#06b6d4" stopOpacity={0.3}/>
-                                            </linearGradient>
-                                        </defs>
-                                        <CartesianGrid strokeDasharray="3 3" stroke="var(--color-border-card)" />
-                                        <XAxis dataKey="name" stroke="var(--color-text-muted)" fontSize={11} />
-                                        <YAxis stroke="var(--color-text-muted)" fontSize={11} tickFormatter={(value: number) => `${value} KM`} />
-                                        <Tooltip 
-                                            contentStyle={tooltipContentStyle}
-                                            labelStyle={tooltipLabelStyle}
-                                            formatter={(value: number) => `${Number(value).toFixed(1)} KM`} 
-                                        />
-                                        <Area type="monotone" dataKey="value" name="KM" stroke="#06b6d4" fill="url(#gradientKm)" />
-                                    </AreaChart>
-                                </ResponsiveContainer>
-                            </div>
+                    {/* Graph 5: Total de Horas Trabalhadas */}
+                    <div className="bg-gray-800 p-4 rounded-lg shadow-xl">
+                        <h3 className="font-semibold text-base mb-4 text-brand-primary text-center">Total de Horas Trabalhadas</h3>
+                        <div className="w-full h-60">
+                           <ResponsiveContainer>
+                                <BarChart data={periodicData} margin={{ top: 5, right: 5, left: -25, bottom: 5 }}>
+                                    <defs>
+                                        <linearGradient id="gradientHoras" x1="0" y1="0" x2="0" y2="1">
+                                            <stop offset="5%" stopColor="#a78bfa" stopOpacity={0.8}/> {/* purple-400 */}
+                                            <stop offset="95%" stopColor="#a78bfa" stopOpacity={0.3}/>
+                                        </linearGradient>
+                                    </defs>
+                                    <CartesianGrid strokeDasharray="3 3" stroke="#4a5568" />
+                                    <XAxis dataKey="name" stroke="#a0aec0" fontSize={11} />
+                                    <YAxis stroke="#a0aec0" fontSize={11} tickFormatter={(value: number) => `${value} h`} />
+                                    <Tooltip 
+                                        contentStyle={tooltipContentStyle}
+                                        labelStyle={tooltipLabelStyle}
+                                        formatter={(value: number) => [`${Number(value).toFixed(1)} h`, 'Horas Trabalhadas']} 
+                                    />
+                                    <Legend wrapperStyle={{fontSize: "12px"}}/>
+                                    <Bar dataKey="totalHoursWorked" name="Horas" fill="url(#gradientHoras)" activeBar={false} />
+                                </BarChart>
+                            </ResponsiveContainer>
                         </div>
+                    </div>
 
-                        {/* Graph 5: Total de Horas Trabalhadas (AreaChart) */}
-                        <div className="bg-bg-card p-4 rounded-lg shadow-xl">
-                            <h3 className="font-semibold text-base mb-4 text-brand-primary text-center">Total de Horas Trabalhadas</h3>
-                            <div className="w-full h-60">
-                                <ResponsiveContainer>
-                                    <AreaChart data={cumulativeHoursData} margin={{ top: 5, right: 5, left: -25, bottom: 5 }}>
-                                        <defs>
-                                            <linearGradient id="gradientHoras" x1="0" y1="0" x2="0" y2="1">
-                                                <stop offset="5%" stopColor="#a855f7" stopOpacity={0.8}/>
-                                                <stop offset="95%" stopColor="#a855f7" stopOpacity={0.3}/>
-                                            </linearGradient>
-                                        </defs>
-                                        <CartesianGrid strokeDasharray="3 3" stroke="var(--color-border-card)" />
-                                        <XAxis dataKey="name" stroke="var(--color-text-muted)" fontSize={11} />
-                                        <YAxis stroke="var(--color-text-muted)" fontSize={11} tickFormatter={(value: number) => `${value} h`} />
-                                        <Tooltip 
-                                            contentStyle={tooltipContentStyle}
-                                            labelStyle={tooltipLabelStyle}
-                                            formatter={(value: number) => `${Number(value).toFixed(1)} h`} 
-                                        />
-                                        <Area type="monotone" dataKey="value" name="Horas" stroke="#a855f7" fill="url(#gradientHoras)" />
-                                    </AreaChart>
-                                </ResponsiveContainer>
-                            </div>
+                    {/* Graph 6: Ganhos por Hora */}
+                    <div className="bg-gray-800 p-4 rounded-lg shadow-xl">
+                        <h3 className="font-semibold text-base mb-4 text-brand-primary text-center">Ganhos por Hora (R$/h)</h3>
+                        <div className="w-full h-60">
+                           <ResponsiveContainer>
+                                <BarChart data={periodicData} margin={{ top: 5, right: 5, left: -25, bottom: 5 }}>
+                                    <defs>
+                                        <linearGradient id="gradientGanhosPorHora" x1="0" y1="0" x2="0" y2="1">
+                                            <stop offset="5%" stopColor="#10b981" stopOpacity={0.8}/> {/* brand-primary */}
+                                            <stop offset="95%" stopColor="#10b981" stopOpacity={0.3}/>
+                                        </linearGradient>
+                                    </defs>
+                                    <CartesianGrid strokeDasharray="3 3" stroke="#4a5568" />
+                                    <XAxis dataKey="name" stroke="#a0aec0" fontSize={11} />
+                                    <YAxis stroke="#a0aec0" fontSize={11} tickFormatter={(value: number) => `R$${value}`} />
+                                    <Tooltip 
+                                        contentStyle={tooltipContentStyle}
+                                        labelStyle={tooltipLabelStyle}
+                                        formatter={(value: number) => [`${Number(value).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL'})}/h`, 'Ganhos por Hora']} 
+                                    />
+                                    <Legend wrapperStyle={{fontSize: "12px"}}/>
+                                    <Bar dataKey="ganhosPorHora" name="Ganhos/h" fill="url(#gradientGanhosPorHora)" activeBar={false} />
+                                </BarChart>
+                            </ResponsiveContainer>
                         </div>
+                    </div>
 
-                        {/* Graph 6: Ganhos por Hora (R$/h) (LineChart) */}
-                        <div className="bg-bg-card p-4 rounded-lg shadow-xl">
-                            <h3 className="font-semibold text-base mb-4 text-brand-primary text-center">Ganhos por Hora (R$/h)</h3>
-                            <div className="w-full h-60">
-                                <ResponsiveContainer>
-                                    <LineChart data={detailedGanhosPorHoraData} margin={{ top: 5, right: 5, left: -25, bottom: 5 }}>
-                                        <CartesianGrid strokeDasharray="3 3" stroke="var(--color-border-card)" />
-                                        <XAxis dataKey="name" stroke="var(--color-text-muted)" fontSize={11} />
-                                        <YAxis stroke="var(--color-text-muted)" fontSize={11} tickFormatter={(value: number) => `R$${value}`} />
-                                        <Tooltip 
-                                            contentStyle={tooltipContentStyle}
-                                            labelStyle={tooltipLabelStyle}
-                                            formatter={(value: number) => `${Number(value).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL'})}/h`} 
-                                        />
-                                        <Line type="monotone" dataKey="value" name="Ganhos/h" stroke="#0ea5e9" activeDot={{ r: 6 }} />
-                                    </LineChart>
-                                </ResponsiveContainer>
-                            </div>
+                    {/* Graph 7: Lucro Líquido por Hora */}
+                    <div className="bg-gray-800 p-4 rounded-lg shadow-xl">
+                        <h3 className="font-semibold text-base mb-4 text-brand-primary text-center">Lucro Líquido por Hora (R$/h)</h3>
+                        <div className="w-full h-60">
+                           <ResponsiveContainer>
+                                <BarChart data={periodicData} margin={{ top: 5, right: 5, left: -25, bottom: 5 }}>
+                                    <defs>
+                                        <linearGradient id="gradientLucroLiquidoPorHora" x1="0" y1="0" x2="0" y2="1">
+                                            <stop offset="5%" stopColor="#10b981" stopOpacity={0.8}/> {/* brand-primary */}
+                                            <stop offset="95%" stopColor="#10b981" stopOpacity={0.3}/>
+                                        </linearGradient>
+                                    </defs>
+                                    <CartesianGrid strokeDasharray="3 3" stroke="#4a5568" />
+                                    <XAxis dataKey="name" stroke="#a0aec0" fontSize={11} />
+                                    <YAxis stroke="#a0aec0" fontSize={11} tickFormatter={(value: number) => `R$${value}`} />
+                                    <Tooltip 
+                                        contentStyle={tooltipContentStyle}
+                                        labelStyle={tooltipLabelStyle}
+                                        formatter={(value: number) => [`${Number(value).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL'})}/h`, 'Lucro Líquido por Hora']} 
+                                    />
+                                    <Legend wrapperStyle={{fontSize: "12px"}}/>
+                                    <Bar dataKey="lucroLiquidoPorHora" name="Lucro Líquido/h" fill="url(#gradientLucroLiquidoPorHora)" activeBar={false} />
+                                </BarChart>
+                            </ResponsiveContainer>
                         </div>
+                    </div>
 
-                        {/* Graph 7: Lucro Líquido por Hora (R$/h) (LineChart) */}
-                        <div className="bg-bg-card p-4 rounded-lg shadow-xl">
-                            <h3 className="font-semibold text-base mb-4 text-brand-primary text-center">Lucro Líquido por Hora (R$/h)</h3>
-                            <div className="w-full h-60">
-                                <ResponsiveContainer>
-                                    <LineChart data={detailedLucroLiquidoPorHoraData} margin={{ top: 5, right: 5, left: -25, bottom: 5 }}>
-                                        <CartesianGrid strokeDasharray="3 3" stroke="var(--color-border-card)" />
-                                        <XAxis dataKey="name" stroke="var(--color-text-muted)" fontSize={11} />
-                                        <YAxis stroke="var(--color-text-muted)" fontSize={11} tickFormatter={(value: number) => `R$${value}`} />
-                                        <Tooltip 
-                                            contentStyle={tooltipContentStyle}
-                                            labelStyle={tooltipLabelStyle}
-                                            formatter={(value: number) => `${Number(value).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL'})}/h`} 
-                                        />
-                                        <Line type="monotone" dataKey="value" name="Lucro Líquido/h" stroke="#f97316" activeDot={{ r: 6 }} />
-                                    </LineChart>
-                                </ResponsiveContainer>
-                            </div>
+                    {/* Graph 8: R$/KM Bruto (antigo 6) */}
+                    <div className="bg-gray-800 p-4 rounded-lg shadow-xl">
+                        <h3 className="font-semibold text-base mb-4 text-brand-primary text-center">R$/KM Bruto</h3>
+                        <div className="w-full h-60">
+                           <ResponsiveContainer>
+                                <BarChart data={periodicData} margin={{ top: 5, right: 5, left: -25, bottom: 5 }}>
+                                    <defs>
+                                        <linearGradient id="gradientGanhosKmBruto" x1="0" y1="0" x2="0" y2="1">
+                                            <stop offset="5%" stopColor="#10b981" stopOpacity={0.8}/> {/* brand-primary */}
+                                            <stop offset="95%" stopColor="#10b981" stopOpacity={0.3}/>
+                                        </linearGradient>
+                                    </defs>
+                                    <CartesianGrid strokeDasharray="3 3" stroke="#4a5568" />
+                                    <XAxis dataKey="name" stroke="#a0aec0" fontSize={11} />
+                                    <YAxis stroke="#a0aec0" fontSize={11} tickFormatter={(value: number) => `${Number(value).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL'})}`} />
+                                    <Tooltip 
+                                        contentStyle={tooltipContentStyle}
+                                        labelStyle={tooltipLabelStyle}
+                                        formatter={(value: number) => [`${Number(value).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL'})}`, 'R$/KM Bruto']} 
+                                    />
+                                    <Legend wrapperStyle={{fontSize: "12px"}}/>
+                                    <Bar dataKey="ganhosPorKmBruto" name="R$/KM Bruto" fill="url(#gradientGanhosKmBruto)" activeBar={false} />
+                                </BarChart>
+                            </ResponsiveContainer>
                         </div>
+                    </div>
 
-                        {/* Graph 8: R$/KM Bruto (LineChart) */}
-                        <div className="bg-bg-card p-4 rounded-lg shadow-xl">
-                            <h3 className="font-semibold text-base mb-4 text-brand-primary text-center">R$/KM Bruto</h3>
-                            <div className="w-full h-60">
-                                <ResponsiveContainer>
-                                    <LineChart data={detailedGanhosPorKmBrutoData} margin={{ top: 5, right: 5, left: -25, bottom: 5 }}>
-                                        <CartesianGrid strokeDasharray="3 3" stroke="var(--color-border-card)" />
-                                        <XAxis dataKey="name" stroke="var(--color-text-muted)" fontSize={11} />
-                                        <YAxis stroke="var(--color-text-muted)" fontSize={11} tickFormatter={(value: number) => `${Number(value).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL'})}`} />
-                                        <Tooltip 
-                                            contentStyle={tooltipContentStyle}
-                                            labelStyle={tooltipLabelStyle}
-                                            formatter={(value: number) => `${Number(value).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL'})}/KM`} 
-                                        />
-                                        <Line type="monotone" dataKey="value" name="R$/KM Bruto" stroke="#22c55e" activeDot={{ r: 6 }} />
-                                    </LineChart>
-                                </ResponsiveContainer>
-                            </div>
-                        </div>
-
-                        {/* Graph 9: Margem de Lucro (%) (LineChart) */}
-                        <div className="bg-bg-card p-4 rounded-lg shadow-xl">
-                            <h3 className="font-semibold text-base mb-4 text-brand-primary text-center">Margem de Lucro (%)</h3>
-                            <div className="w-full h-60">
-                                <ResponsiveContainer>
-                                    <LineChart data={detailedMargemLucroData} margin={{ top: 5, right: 5, left: -25, bottom: 5 }}>
-                                        <CartesianGrid strokeDasharray="3 3" stroke="var(--color-border-card)" />
-                                        <XAxis dataKey="name" stroke="var(--color-text-muted)" fontSize={11} />
-                                        <YAxis stroke="var(--color-text-muted)" fontSize={11} tickFormatter={(value: number) => `${value}%`} />
-                                        <Tooltip 
-                                            contentStyle={tooltipContentStyle}
-                                            labelStyle={tooltipLabelStyle}
-                                            formatter={(value: number) => `${Number(value).toFixed(1)}%`} 
-                                        />
-                                        <Line type="monotone" dataKey="value" name="Margem %" stroke="#e11d48" activeDot={{ r: 6 }} />
-                                    </LineChart>
-                                </ResponsiveContainer>
-                            </div>
+                    {/* Graph 9: Margem de Lucro (%) (antigo 7) */}
+                    <div className="bg-gray-800 p-4 rounded-lg shadow-xl">
+                        <h3 className="font-semibold text-base mb-4 text-brand-primary text-center">Margem de Lucro (%)</h3>
+                        <div className="w-full h-60">
+                           <ResponsiveContainer>
+                                <BarChart data={periodicData} margin={{ top: 5, right: 5, left: -25, bottom: 5 }}>
+                                    <defs>
+                                        <linearGradient id="gradientMargem" x1="0" y1="0" x2="0" y2="1">
+                                            <stop offset="5%" stopColor="#e11d48" stopOpacity={0.8}/> {/* rose-500 */}
+                                            <stop offset="95%" stopColor="#e11d48" stopOpacity={0.3}/>
+                                        </linearGradient>
+                                    </defs>
+                                    <CartesianGrid strokeDasharray="3 3" stroke="#4a5568" />
+                                    <XAxis dataKey="name" stroke="#a0aec0" fontSize={11} />
+                                    <YAxis stroke="#a0aec0" fontSize={11} tickFormatter={(value: number) => `${value}%`} />
+                                    <Tooltip 
+                                        contentStyle={tooltipContentStyle}
+                                        labelStyle={tooltipLabelStyle}
+                                        formatter={(value: number) => [`${Number(value).toFixed(1)}%`, 'Margem de Lucro']} 
+                                    />
+                                    <Legend wrapperStyle={{fontSize: "12px"}}/>
+                                    <Bar dataKey="margemLucro" name="Margem %" fill="url(#gradientMargem)" activeBar={false} />
+                                </BarChart>
+                            </ResponsiveContainer>
                         </div>
                     </div>
                 </div>
+                </>
             )}
         </div>
     );
   };
 
   return (
-    <div className="max-w-md mx-auto text-text-default">
+    <div className="max-w-md mx-auto text-white">
       {!isPremium ? (
         <div className="text-center">
             <h1 className="text-3xl font-bold text-center mb-4 text-yellow-400 flex items-center justify-center">
                 <Crown className="mr-2" /> GanhosPro Premium
             </h1>
-            <p className="text-center text-text-muted mb-8">
+            <p className="text-center text-gray-300 mb-8">
                 Desbloqueie todo o potencial do app e maximize seus lucros.
             </p>
-            <div className="bg-bg-card p-6 rounded-lg shadow-xl mb-6">
+            <div className="bg-gray-800 p-6 rounded-lg shadow-xl mb-6">
                 <h2 className="text-xl font-semibold mb-4 text-brand-primary">Vantagens Premium</h2>
-                <ul className="space-y-3 text-text-muted text-left">
+                <ul className="space-y-3 text-gray-300 text-left">
                 <li className="flex items-start">
                     <BarChart2 className="w-5 h-5 mr-3 mt-1 text-green-400 flex-shrink-0" />
-                    <span><span className="font-semibold text-text-default">Registros Ilimitados:</span> Salve seu histórico sem se preocupar com limites.</span>
+                    <span><span className="font-semibold text-white">Registros Ilimitados:</span> Salve seu histórico sem se preocupar com limites.</span>
                 </li>
                  <li className="flex items-start">
                     <CalendarDays className="w-5 h-5 mr-3 mt-1 text-yellow-400 flex-shrink-0" />
-                    <span><span className="font-semibold text-text-default">Análise Periódica:</span> Compare seus resultados por semana, mês ou ano.</span>
+                    <span><span className="font-semibold text-white">Análise Periódica:</span> Compare seus resultados por semana, mês ou ano.</span>
                 </li>
                 <li className="flex items-start">
                     <BrainCircuit className="w-5 h-5 mr-3 mt-1 text-yellow-400 flex-shrink-0" />
-                    <span><span className="font-semibold text-text-default">Insights com IA:</span> Receba análises completas e converse com a IA.</span>
+                    <span><span className="font-semibold text-white">Insights com IA:</span> Receba análises completas e converse com a IA.</span>
                 </li>
                 <li className="flex items-start">
                     <FileBarChart2 className="w-5 h-5 mr-3 mt-1 text-yellow-400 flex-shrink-0" />
-                    <span><span className="font-semibold text-text-default">Relatórios Inteligentes:</span> Crie relatórios personalizados com gráficos.</span>
+                    <span><span className="font-semibold text-white">Relatórios Inteligentes:</span> Crie relatórios personalizados com gráficos.</span>
                 </li>
                 <li className="flex items-start">
                     <Calculator className="w-5 h-5 mr-3 mt-1 text-yellow-400 flex-shrink-0" />
-                    <span><span className="font-semibold text-text-default">Custo por KM Preciso:</span> Calcule seu custo real com base em todos os seus gastos.</span>
+                    <span><span className="font-semibold text-white">Custo por KM Preciso:</span> Calcule seu custo real com base em todos os seus gastos.</span>
                 </li>
                 </ul>
             </div>
-            <p className="text-lg mb-4">Assine o plano mensal e maximize seus ganhos!</p>
-            <div className="flex flex-col gap-4">
-                <button
-                    onClick={() => handleUpgrade(
-                        'YOUR_STRIPE_MONTHLY_PRICE_ID', // ID de preço mensal
-                        'subscription'
-                    )}
-                    disabled={isUpgrading}
-                    className="bg-brand-primary hover:bg-brand-secondary text-white font-bold py-4 px-8 rounded-lg flex items-center justify-center transition-transform transform hover:scale-105 w-full text-lg disabled:opacity-50 disabled:cursor-not-allowed"
-                    aria-label="Assinar Premium Mensal"
-                >
-                    {isUpgrading ? <Loader2 className="animate-spin mr-2" size={24} /> : <DollarSign className="mr-2" />}
-                    {isUpgrading ? 'Processando...' : 'Assinar Mensal'}
-                </button>
-            </div>
+            <p className="text-lg mb-4">Atualize para o Premium por um pagamento único.</p>
+            <button
+                onClick={handleUpgrade}
+                className="bg-yellow-500 hover:bg-yellow-600 text-gray-900 font-bold py-4 px-8 rounded-lg flex items-center justify-center transition-transform transform hover:scale-105 w-full text-lg"
+                aria-label="Fazer Upgrade Agora para Premium"
+            >
+                <Unlock className="mr-2" /> Fazer Upgrade Agora
+            </button>
         </div>
       ) : (
         <>

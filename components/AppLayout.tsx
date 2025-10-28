@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Routes, Route, NavLink } from 'react-router-dom';
-import { Database, Settings as SettingsIcon, Crown, Home, LogOut } from 'lucide-react';
+import { Database, Settings as SettingsIcon, Crown, Home } from 'lucide-react';
 import Dashboard from './Dashboard';
 import History from './History';
 import Settings from './Settings';
@@ -8,8 +8,6 @@ import Premium from './Premium';
 import { RunRecord, AppSettings } from '../types';
 import { useLocalStorage } from '../hooks/useLocalStorage';
 import { useOfflineSync } from '../hooks/useOfflineSync';
-import { notificationService } from '../src/integrations/capacitor/notifications';
-import { useSession } from '../src/components/SessionContextProvider';
 
 const AppLayout: React.FC = () => {
   const { 
@@ -20,14 +18,12 @@ const AppLayout: React.FC = () => {
     pendingOperations,
   } = useOfflineSync();
 
-  const { isPremium, signOut, user, session } = useSession(); // Obter 'session' também
-  
   const [records, setRecords] = useState<RunRecord[]>([]);
   const [settings, setSettings] = useLocalStorage<AppSettings>('ganhospro_settings', { costPerKm: 0.75 });
-  const [notificationSettings] = useLocalStorage<{ enabled: boolean; time: string }>('ganhospro_notification_settings', { enabled: false, time: '19:00' });
+  const [isPremium, setIsPremium] = useLocalStorage<boolean>('ganhospro_is_premium', false);
 
   useEffect(() => {
-    if (isInitialized) { // Carregar registros independentemente do status de login
+    if (isInitialized) {
       const fetchRecords = async () => {
         const fetchedRecords = await getAllRecords();
         setRecords(fetchedRecords);
@@ -35,21 +31,6 @@ const AppLayout: React.FC = () => {
       fetchRecords();
     }
   }, [isInitialized, getAllRecords, pendingOperations.length]);
-
-  // Efeito para inicializar/reagendar notificações ao carregar o app
-  useEffect(() => {
-    const initializeNotifications = async () => {
-      if (notificationSettings.enabled) {
-        const granted = await notificationService.requestPermissions();
-        if (granted) {
-          await notificationService.scheduleDailyReminder(notificationSettings);
-        }
-      } else {
-        await notificationService.cancelDailyReminder();
-      }
-    };
-    initializeNotifications();
-  }, [notificationSettings.enabled, notificationSettings.time]);
 
   const addOrUpdateRecord = async (record: RunRecord) => {
     const success = await saveRecordOffline(record);
@@ -83,7 +64,7 @@ const AppLayout: React.FC = () => {
           <Route path="/" element={<Dashboard records={records} settings={settings} addOrUpdateRecord={addOrUpdateRecord} deleteRecord={deleteRecord} isPremium={isPremium} />} />
           <Route path="/history" element={<History records={records} deleteRecord={deleteRecord} settings={settings} />} />
           <Route path="/settings" element={<Settings settings={settings} setSettings={setSettings} isPremium={isPremium} />} />
-          <Route path="/premium" element={<Premium records={records} settings={settings} />} />
+          <Route path="/premium" element={<Premium records={records} settings={settings} isPremium={isPremium} setIsPremium={setIsPremium} />} />
         </Routes>
       </main>
       <footer className="fixed bottom-0 left-0 right-0 bg-bg-card border-t border-border-card shadow-lg">
@@ -107,12 +88,6 @@ const AppLayout: React.FC = () => {
             <SettingsIcon size={24} />
             <span>Ajustes</span>
           </NavLink>
-          {session && ( // Botão de Sair visível apenas se houver uma sessão ativa
-            <button onClick={signOut} className="flex flex-col items-center justify-center w-full text-xs text-text-muted hover:text-red-500 transition-colors" aria-label="Sair">
-              <LogOut size={24} />
-              <span>Sair</span>
-            </button>
-          )}
         </nav>
       </footer>
     </div>
