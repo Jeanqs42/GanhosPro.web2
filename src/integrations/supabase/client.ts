@@ -1,6 +1,13 @@
 import { createClient } from '@supabase/supabase-js';
 
-const supabaseUrl = 'https://yqwxjkkpmakzqrqsrzqi.supabase.co';
-const supabaseAnonKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inlxd3hqa2twbWFrenFycXNyenFpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjE2MTE4MzUsImV4cCI6MjA3NzE4NzgzNX0.VkBVdUIz9TR0OdnSFMi_YFTAPkGkex3kp_FJmCOJuEk';
+// As variáveis de ambiente são acessadas via import.meta.env no Vite
+const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
+const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
+
+if (!supabaseUrl || !supabaseAnonKey) {
+  console.error('Supabase URL or Anon Key is not defined in environment variables.');
+  // Em um ambiente de produção, você pode querer lançar um erro ou ter um fallback mais robusto.
+  // Para desenvolvimento, um console.error é suficiente.
+}
 
 export const supabase = createClient(supabaseUrl, supabaseAnonKey);
