@@ -5,6 +5,7 @@ import { Save, Info, Calculator, Droplet, Zap, Blend, PlusCircle, Car, Wrench, S
 import { AppSettings } from '../types';
 import { useLocalStorage } from '../hooks/useLocalStorage';
 import { useTheme } from '../src/hooks/useTheme';
+import NotificationSettings from './NotificationSettings'; // Importando o novo componente
 
 interface SettingsProps {
   settings: AppSettings;
@@ -167,6 +168,9 @@ const Settings: React.FC<SettingsProps> = ({ settings, setSettings, isPremium })
           ))}
         </select>
       </div>
+
+      {/* Novo componente de configurações de notificação */}
+      <NotificationSettings isPremium={isPremium} />
 
       <div className="bg-bg-card p-6 rounded-lg shadow-xl mb-6">
         <label htmlFor="costPerKm" className="block text-sm font-medium text-text-muted mb-2">

@@ -8,6 +8,7 @@ import Premium from './Premium';
 import { RunRecord, AppSettings } from '../types';
 import { useLocalStorage } from '../hooks/useLocalStorage';
 import { useOfflineSync } from '../hooks/useOfflineSync';
+import { notificationService } from '../src/integrations/capacitor/notifications'; // Importando o serviço de notificação
 
 const AppLayout: React.FC = () => {
   const { 
@@ -21,6 +22,7 @@ const AppLayout: React.FC = () => {
   const [records, setRecords] = useState<RunRecord[]>([]);
   const [settings, setSettings] = useLocalStorage<AppSettings>('ganhospro_settings', { costPerKm: 0.75 });
   const [isPremium, setIsPremium] = useLocalStorage<boolean>('ganhospro_is_premium', false);
+  const [notificationSettings] = useLocalStorage<{ enabled: boolean; time: string }>('ganhospro_notification_settings', { enabled: false, time: '19:00' });
 
   useEffect(() => {
     if (isInitialized) {
@@ -31,6 +33,25 @@ const AppLayout: React.FC = () => {
       fetchRecords();
     }
   }, [isInitialized, getAllRecords, pendingOperations.length]);
+
+  // Efeito para inicializar/reagendar notificações ao carregar o app
+  useEffect(() => {
+    const initializeNotifications = async () => {
+      if (notificationSettings.enabled) {
+        const granted = await notificationService.requestPermissions();
+        if (granted) {
+          await notificationService.scheduleDailyReminder(notificationSettings);
+        } else {
+          // Se a permissão foi negada na inicialização, desativar o lembrete na UI
+          // Isso é tratado dentro do NotificationSettings, mas é bom ter um fallback aqui.
+          // No entanto, o useLocalStorage já manterá o estado, então não precisamos de setSettings aqui.
+        }
+      } else {
+        await notificationService.cancelDailyReminder();
+      }
+    };
+    initializeNotifications();
+  }, [notificationSettings.enabled, notificationSettings.time]); // Depende das configurações de notificação
 
   const addOrUpdateRecord = async (record: RunRecord) => {
     const success = await saveRecordOffline(record);

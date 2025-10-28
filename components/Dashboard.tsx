@@ -4,6 +4,7 @@ import toast from 'react-hot-toast';
 import { DollarSign, Route, Clock, Wrench, Calculator, Save, Info, Edit, ArrowLeft, Loader2 } from 'lucide-react';
 import { RunRecord, AppSettings, CalculationResult } from '../types';
 import { safeRandomUUID } from '../utils/uuid';
+import { notificationService } from '../src/integrations/capacitor/notifications'; // Importando o serviço de notificação
 
 interface InputFieldProps {
   icon: React.ReactNode; 
@@ -216,6 +217,9 @@ const Dashboard: React.FC<DashboardProps> = ({ records, settings, addOrUpdateRec
             return;
         }
 
+        // Se o registro foi salvo com sucesso, cancelar a notificação do dia
+        await notificationService.clearNotificationForToday();
+        
         if (recordToOverwrite) {
             await deleteRecord(recordToOverwrite.id);
         }
