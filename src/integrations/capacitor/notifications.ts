@@ -17,7 +17,7 @@ export const notificationService = {
   async requestPermissions(): Promise<boolean> {
     if (isWebPlatform) {
       console.warn('Notificações locais não são totalmente suportadas na pré-visualização web.');
-      toast.info('Notificações locais não são totalmente suportadas na pré-visualização web.');
+      toast('Notificações locais não são totalmente suportadas na pré-visualização web.'); // Corrigido de toast.info para toast
       return false;
     }
     try {
