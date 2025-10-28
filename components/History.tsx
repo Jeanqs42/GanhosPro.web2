@@ -180,7 +180,7 @@ const History: React.FC<HistoryProps> = ({ records, deleteRecord, settings }) =>
           return (
             <div 
                 key={record.id} 
-                className="bg-bg-card rounded-lg shadow-md transition-all duration-300 overflow-hidden p-4 flex items-center justify-between cursor-pointer hover:bg-bg-card/50" {/* Usando classes de tema */}
+                className="bg-bg-card rounded-lg shadow-md transition-all duration-300 overflow-hidden p-4 flex items-center justify-between cursor-pointer hover:bg-bg-card/50" 
                 onClick={() => handleViewDetails(record)}
                 aria-label={`Ver detalhes do registro de ${new Date(record.date).toLocaleDateString('pt-BR', { timeZone: 'UTC' })}`}
             >
