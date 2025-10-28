@@ -58,7 +58,7 @@ const NotificationSettings: React.FC<NotificationSettingsProps> = ({ isPremium }
         toast.error('Não foi possível atualizar o horário sem permissão.');
       }
     } else {
-      toast.info('Ative o lembrete para salvar o horário.');
+      toast('Ative o lembrete para salvar o horário.'); // Corrigido de toast.info para toast()
     }
     const time = await notificationService.getScheduledReminderTime();
     setCurrentScheduledTime(time);
