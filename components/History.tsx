@@ -67,7 +67,7 @@ const History: React.FC<HistoryProps> = ({ records, deleteRecord, settings }) =>
                           return;
                         }
                         toast.dismiss(t.id);
-                        toast.success('Registro apagado com sucesso!');
+                        toast.success('Registro apagado com sucesso!', { duration: 1500 }); // Duração ajustada para 1.5 segundos
                         setDeletingRecordId(null); // Reseta o estado de exclusão
                     }}
                     disabled={deletingRecordId === id}
