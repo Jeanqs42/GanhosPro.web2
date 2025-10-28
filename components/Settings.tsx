@@ -1,10 +1,10 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import toast from 'react-hot-toast';
-import { Save, Info, Calculator, Droplet, Zap, Blend, PlusCircle, Car, Wrench, Shield, FileText, Route, Crown, Loader2, Palette } from 'lucide-react'; // Adicionado Palette
+import { Save, Info, Calculator, Droplet, Zap, Blend, PlusCircle, Car, Wrench, Shield, FileText, Route, Crown, Loader2, Palette } from 'lucide-react';
 import { AppSettings } from '../types';
 import { useLocalStorage } from '../hooks/useLocalStorage';
-import { useTheme } from '../hooks/useTheme'; // Importar useTheme
+import { useTheme } from '../src/hooks/useTheme'; // Caminho corrigido
 
 interface SettingsProps {
   settings: AppSettings;
@@ -35,9 +35,9 @@ const InputField: React.FC<{ icon?: React.ReactNode; label: string; helper?: str
 
 const Settings: React.FC<SettingsProps> = ({ settings, setSettings, isPremium }) => {
   const navigate = useNavigate();
-  const { theme, setTheme, themes } = useTheme(); // Usar o hook useTheme
+  const { theme, setTheme, themes } = useTheme();
   const [costPerKm, setCostPerKm] = useState<string>(settings.costPerKm.toString());
-  const [activeTab, setActiveTab] = useLocalStorage<'combustion' | 'hybrid' | 'electric'>('settings_active_tab', 'combustion'); // Persistir aba ativa
+  const [activeTab, setActiveTab] = useLocalStorage<'combustion' | 'hybrid' | 'electric'>('settings_active_tab', 'combustion');
 
   // Fuel calculator states
   const [refuelCost, setRefuelCost] = useLocalStorage<string>('settings_refuel_cost', '');
