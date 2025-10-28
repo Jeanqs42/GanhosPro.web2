@@ -137,7 +137,7 @@ const Premium: React.FC<PremiumProps> = ({ records, settings, isPremium, setIsPr
       }
 
       // Replace with your actual Stripe Price ID for the monthly subscription
-      const stripePriceId = 'price_1Pj110LfkWVPQBKx003RoNIw2i'; // Placeholder, user needs to replace this
+      const stripePriceId = 'price_1SMAaYLfOkZUOBKq2jLxKI2F'; // Updated Stripe Price ID
 
       if (!stripePriceId || stripePriceId === 'price_12345') {
         toast.error('O ID do preço do Stripe não está configurado. Por favor, configure-o no código.');
