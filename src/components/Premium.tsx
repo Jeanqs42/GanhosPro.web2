@@ -1146,7 +1146,7 @@ const Premium: React.FC<PremiumProps> = ({ records, settings }) => {
                 </li>
                 </ul>
             </div>
-            <p className="text-lg mb-4">Escolha seu plano e maximize seus ganhos!</p>
+            <p className="text-lg mb-4">Assine o plano mensal e maximize seus ganhos!</p>
             <div className="flex flex-col gap-4">
                 <button
                     onClick={() => handleUpgrade(
@@ -1158,19 +1158,7 @@ const Premium: React.FC<PremiumProps> = ({ records, settings }) => {
                     aria-label="Assinar Premium Mensal"
                 >
                     {isUpgrading ? <Loader2 className="animate-spin mr-2" size={24} /> : <DollarSign className="mr-2" />}
-                    {isUpgrading ? 'Processando...' : 'Assinar Mensal (R$X.XX/mês)'}
-                </button>
-                <button
-                    onClick={() => handleUpgrade(
-                        'YOUR_STRIPE_ANNUAL_PRICE_ID', // ID de preço anual
-                        'subscription'
-                    )}
-                    disabled={isUpgrading}
-                    className="bg-yellow-500 hover:bg-yellow-600 text-gray-900 font-bold py-4 px-8 rounded-lg flex items-center justify-center transition-transform transform hover:scale-105 w-full text-lg disabled:opacity-50 disabled:cursor-not-allowed"
-                    aria-label="Assinar Premium Anual"
-                >
-                    {isUpgrading ? <Loader2 className="animate-spin mr-2" size={24} /> : <Unlock className="mr-2" />}
-                    {isUpgrading ? 'Processando...' : 'Assinar Anual (R$Y.YY/ano)'}
+                    {isUpgrading ? 'Processando...' : 'Assinar Mensal'}
                 </button>
             </div>
         </div>
