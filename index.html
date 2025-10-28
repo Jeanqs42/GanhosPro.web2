@@ -15,23 +15,6 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&display=swap" rel="stylesheet">
     
-    <!-- Theme CSS Variables (Default Dark Emerald) -->
-    <style id="theme-vars">
-      :root {
-        --color-brand-primary: #10b981;
-        --color-brand-secondary: #059669;
-        --color-brand-dark: #1f2937;
-        --color-brand-light: #f9fafb;
-        --color-brand-accent: #f59e0b;
-        --color-text-default: #f9fafb;
-        --color-bg-default: #1f2937;
-        --color-bg-card: #1f2937;
-        --color-border-card: #374151;
-        --color-text-muted: #9ca3af;
-        --color-text-heading: #f9fafb;
-      }
-    </style>
-
     <!-- App styles (Tailwind) -->
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
@@ -39,17 +22,11 @@
         theme: {
           extend: {
             colors: {
-              'brand-primary': 'var(--color-brand-primary)',
-              'brand-secondary': 'var(--color-brand-secondary)',
-              'brand-dark': 'var(--color-brand-dark)',
-              'brand-light': 'var(--color-brand-light)',
-              'brand-accent': 'var(--color-brand-accent)',
-              'text-default': 'var(--color-text-default)',
-              'bg-default': 'var(--color-bg-default)',
-              'bg-card': 'var(--color-bg-card)',
-              'border-card': 'var(--color-border-card)',
-              'text-muted': 'var(--color-text-muted)',
-              'text-heading': 'var(--color-text-heading)',
+              'brand-primary': '#10b981', // emerald-500
+              'brand-secondary': '#059669', // emerald-600
+              'brand-dark': '#1f2937', // gray-800
+              'brand-light': '#f9fafb', // gray-50
+              'brand-accent': '#f59e0b', // amber-500
             },
             keyframes: {
               'fade-in-up': {
@@ -88,7 +65,7 @@
 }
 </script>
   </head>
-  <body>
+  <body class="bg-brand-dark">
     <div id="root"></div>
     <!-- Vite injetará o script correto aqui durante o build -->
     <script type="module" src="/index.tsx"></script>

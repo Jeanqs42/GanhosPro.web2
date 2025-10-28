@@ -1,14 +1,10 @@
 import React from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import AppLayout from './components/AppLayout';
-import LandingPage from './src/pages/LandingPage';
+import LandingPage from './src/pages/LandingPage'; // CORREÇÃO 7: Caminho de importação corrigido
 import { useLocalStorage } from './hooks/useLocalStorage';
-import { useTheme } from './src/hooks/useTheme'; // Caminho corrigido
 
 const App: React.FC = () => {
-  // Inicializa o hook de tema para aplicar as variáveis CSS globalmente
-  useTheme(); 
-
   // Estado para verificar se o usuário já visitou a landing page
   const [hasVisitedLanding, setHasVisitedLanding] = useLocalStorage<boolean>('ganhospro_has_visited_landing', false);
 

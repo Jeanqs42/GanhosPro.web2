@@ -2,18 +2,29 @@ import React, { useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import toast from 'react-hot-toast';
 import { RunRecord, AppSettings } from '../types';
-import { Trash2, Calendar, Route, FileDown, FileText, Loader2, Clock } from 'lucide-react';
+import { Trash2, Calendar, Route, FileDown, FileText, Loader2, Clock } from 'lucide-react'; // Importar Clock
 import { exportCSV, exportPDF } from '../utils/export';
+// import { useOfflineSync } from '../hooks/useOfflineSync'; // Removido: Não é mais necessário para status visual
 
 interface HistoryProps {
   records: RunRecord[];
-  deleteRecord: (id: string) => Promise<boolean>;
+  deleteRecord: (id: string) => Promise<boolean>; // Agora recebe a função do AppLayout
   settings: AppSettings;
 }
 
 const History: React.FC<HistoryProps> = ({ records, deleteRecord, settings }) => {
   const navigate = useNavigate();
   
+  // Removido: Hook de sincronização offline e suas variáveis de status
+  // const {
+  //   isOnline,
+  //   hasPendingOperations,
+  //   syncInProgress,
+  //   forcSync,
+  //   pendingOperations,
+  //   lastSyncTime,
+  // } = useOfflineSync();
+
   const [isExportingCSV, setIsExportingCSV] = useState<boolean>(false);
   const [isExportingPDF, setIsExportingPDF] = useState<boolean>(false);
   const [deletingRecordId, setDeletingRecordId] = useState<string | null>(null);
@@ -23,6 +34,7 @@ const History: React.FC<HistoryProps> = ({ records, deleteRecord, settings }) =>
   }, [records]);
 
   const handleViewDetails = (record: RunRecord) => {
+    // CORREÇÃO: Navegar diretamente para /app para garantir que o location.state seja preservado
     navigate('/app', { state: { record: record } });
   };
 
@@ -30,7 +42,7 @@ const History: React.FC<HistoryProps> = ({ records, deleteRecord, settings }) =>
     toast((t: any) => (
         <div className="flex flex-col items-center text-center p-2">
             <h3 className="font-bold text-lg mb-2 text-red-400">Confirmar Exclusão</h3>
-            <p className="text-sm mb-4 text-text-default"> {/* Usando classes de tema */}
+            <p className="text-sm mb-4">
                 Tem certeza que deseja apagar o registro do dia {new Date(recordDate).toLocaleDateString('pt-BR', { timeZone: 'UTC' })}?
                 <br/>
                 <span className="font-bold">Esta ação não pode ser desfeita.</span>
@@ -45,23 +57,25 @@ const History: React.FC<HistoryProps> = ({ records, deleteRecord, settings }) =>
                 </button>
                 <button
                     onClick={async (e: React.MouseEvent<HTMLButtonElement>) => {
-                        e.stopPropagation();
-                        setDeletingRecordId(id);
+                        e.stopPropagation(); // Evita que o clique propague para o item da lista
+                        setDeletingRecordId(id); // Define o estado de exclusão
+                        // Chama a função deleteRecord passada via props do AppLayout
                         const success = await deleteRecord(id); 
                         if (!success) {
                           toast.error('Falha ao apagar. Tente novamente.');
-                          setDeletingRecordId(null);
+                          setDeletingRecordId(null); // Reseta o estado de exclusão
                           return;
                         }
                         toast.dismiss(t.id);
-                        toast.success('Registro apagado com sucesso!', { duration: 1500 });
-                        setDeletingRecordId(null);
+                        toast.success('Registro apagado com sucesso!');
+                        setDeletingRecordId(null); // Reseta o estado de exclusão
                     }}
                     disabled={deletingRecordId === id}
                     className="flex-1 bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-4 rounded-lg text-sm transition-colors flex items-center justify-center"
                     aria-label="Confirmar exclusão"
                 >
-                    {deletingRecordId === id ? <Loader2 className="animate-spin mr-2" size={18} /> : 'Confirmar'}
+                    {deletingRecordId === id ? <Loader2 className="animate-spin mr-2" size={18} /> : null}
+                    {deletingRecordId === id ? 'Apagando...' : 'Confirmar'}
                 </button>
             </div>
         </div>
@@ -96,6 +110,7 @@ const History: React.FC<HistoryProps> = ({ records, deleteRecord, settings }) =>
     }, 0);
   }, [records, settings.costPerKm]);
 
+  // Novo cálculo para Custos Totais
   const totalCosts = useMemo(() => {
     return records.reduce((sum: number, r: RunRecord) => {
       const carCost = r.kmDriven * settings.costPerKm;
@@ -122,7 +137,7 @@ const History: React.FC<HistoryProps> = ({ records, deleteRecord, settings }) =>
 
   if (records.length === 0) {
     return (
-      <div className="text-center text-text-muted mt-10"> {/* Usando classes de tema */}
+      <div className="text-center text-gray-400 mt-10">
         <Calendar size={48} className="mx-auto mb-4" />
         <h2 className="text-xl font-semibold">Nenhum registro encontrado</h2>
         <p className="mt-2">Comece a adicionar suas corridas na tela de Início.</p>
@@ -156,18 +171,22 @@ const History: React.FC<HistoryProps> = ({ records, deleteRecord, settings }) =>
         </div>
       </div>
 
-      <div className="bg-bg-card p-5 rounded-lg shadow-md text-center mb-4"> {/* Usando classes de tema */}
-          <p className="text-base text-text-muted">Lucro Líquido Total</p> {/* Usando classes de tema */}
+      {/* Removido o bloco de status de conectividade */}
+
+      {/* Lucro Líquido Total - Destacado */}
+      <div className="bg-gray-800 p-5 rounded-lg shadow-md text-center mb-4">
+          <p className="text-base text-gray-400">Lucro Líquido Total</p>
           <p className={`text-3xl font-bold ${totalNetProfit >= 0 ? 'text-green-400' : 'text-red-400'}`}>{totalNetProfit.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}</p>
       </div>
 
+      {/* Ganhos Totais e Custos Totais - Lado a lado */}
       <div className="grid grid-cols-2 gap-4 mb-6">
-        <div className="bg-bg-card p-4 rounded-lg text-center"> {/* Usando classes de tema */}
-            <p className="text-sm text-text-muted">Ganhos Totais</p> {/* Usando classes de tema */}
+        <div className="bg-gray-800 p-4 rounded-lg text-center">
+            <p className="text-sm text-gray-400">Ganhos Totais</p>
             <p className="text-2xl font-bold text-brand-primary">{totalEarnings.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}</p>
         </div>
-        <div className="bg-bg-card p-4 rounded-lg text-center"> {/* Usando classes de tema */}
-            <p className="text-sm text-text-muted">Custos Totais</p> {/* Usando classes de tema */}
+        <div className="bg-gray-800 p-4 rounded-lg text-center">
+            <p className="text-sm text-gray-400">Custos Totais</p>
             <p className="text-2xl font-bold text-yellow-400">{totalCosts.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}</p>
         </div>
       </div>
@@ -180,20 +199,20 @@ const History: React.FC<HistoryProps> = ({ records, deleteRecord, settings }) =>
           return (
             <div 
                 key={record.id} 
-                className="bg-bg-card rounded-lg shadow-md transition-all duration-300 overflow-hidden p-4 flex items-center justify-between cursor-pointer hover:bg-bg-card/50" {/* Usando classes de tema */}
+                className="bg-gray-800 rounded-lg shadow-md transition-all duration-300 overflow-hidden p-4 flex items-center justify-between cursor-pointer hover:bg-gray-700/50"
                 onClick={() => handleViewDetails(record)}
                 aria-label={`Ver detalhes do registro de ${new Date(record.date).toLocaleDateString('pt-BR', { timeZone: 'UTC' })}`}
             >
                 <div className="flex items-center gap-4">
-                    <Calendar size={24} className="text-text-muted flex-shrink-0" /> {/* Usando classes de tema */}
+                    <Calendar size={24} className="text-gray-400 flex-shrink-0" />
                     <div>
-                        <p className="font-bold text-lg text-text-default">{new Date(record.date).toLocaleDateString('pt-BR', { timeZone: 'UTC' })}</p> {/* Usando classes de tema */}
-                        <div className="flex items-center gap-3 mt-1">
-                            <p className="flex items-center text-sm text-text-muted"> {/* Usando classes de tema */}
+                        <p className="font-bold text-lg text-white">{new Date(record.date).toLocaleDateString('pt-BR', { timeZone: 'UTC' })}</p>
+                        <div className="flex items-center gap-3 mt-1"> {/* Flex container para KM e Horas */}
+                            <p className="flex items-center text-sm text-gray-400">
                                 <Route size={14} className="mr-1.5" /> {record.kmDriven.toFixed(1)} km
                             </p>
                             {record.hoursWorked !== undefined && record.hoursWorked > 0 && (
-                                <p className="flex items-center text-sm text-text-muted"> {/* Usando classes de tema */}
+                                <p className="flex items-center text-sm text-gray-400">
                                     <Clock size={14} className="mr-1.5" /> {record.hoursWorked.toFixed(1)} h
                                 </p>
                             )}
@@ -202,7 +221,7 @@ const History: React.FC<HistoryProps> = ({ records, deleteRecord, settings }) =>
                 </div>
                 <div className="flex items-center gap-2 sm:gap-4">
                     <div className="text-right">
-                        <p className="text-xs text-text-muted">Lucro Líquido</p> {/* Usando classes de tema */}
+                        <p className="text-xs text-gray-400">Lucro Líquido</p>
                         <p className={`font-bold text-lg ${netProfit >= 0 ? 'text-green-400' : 'text-red-400'}`}>{netProfit.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}</p>
                     </div>
                     <button 
