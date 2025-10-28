@@ -5,7 +5,7 @@ import { Save, Info, Calculator, Droplet, Zap, Blend, PlusCircle, Car, Wrench, S
 import { AppSettings } from '../types';
 import { useLocalStorage } from '../hooks/useLocalStorage';
 import { useTheme } from '../src/hooks/useTheme';
-import NotificationSettings from './NotificationSettings'; // Importando o novo componente
+import NotificationSettings from '../src/components/NotificationSettings'; // Caminho corrigido
 
 interface SettingsProps {
   settings: AppSettings;
