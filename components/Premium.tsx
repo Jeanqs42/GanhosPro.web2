@@ -537,7 +537,7 @@ const Premium: React.FC<PremiumProps> = ({ records, settings, isPremium, setIsPr
   const renderHeader = (title: string, icon?: React.ReactNode) => (
     <div className="flex items-center mb-4">
       {activeTool !== 'menu' && (
-        <button onClick={() => setActiveTool('menu')} className="p-2 rounded-full hover:bg-bg-card/50 mr-2" aria-label="Voltar ao menu Premium"> {/* Usando classes de tema */}
+        <button onClick={() => setActiveTool('menu')} className="p-2 rounded-full hover:bg-bg-card/50 mr-2" aria-label="Voltar ao menu Premium">
           <ArrowLeft size={20} />
         </button>
       )}
@@ -552,37 +552,37 @@ const Premium: React.FC<PremiumProps> = ({ records, settings, isPremium, setIsPr
   const renderMenu = () => (
     <>
       {renderHeader('GanhosPro Premium', <Crown/>)}
-      <p className="text-center text-text-muted mb-8"> {/* Usando classes de tema */}
+      <p className="text-center text-text-muted mb-8">
         Escolha uma ferramenta abaixo para turbinar sua análise.
       </p>
       <div className="space-y-4">
-        <button type="button" onClick={() => setActiveTool('insights')} aria-label="Abrir Insights com IA" className="w-full text-left bg-bg-card p-6 rounded-lg shadow-lg hover:bg-bg-card/50 cursor-pointer transition-colors border border-transparent hover:border-brand-primary"> {/* Usando classes de tema */}
+        <button type="button" onClick={() => setActiveTool('insights')} aria-label="Abrir Insights com IA" className="w-full text-left bg-bg-card p-6 rounded-lg shadow-lg hover:bg-bg-card/50 cursor-pointer transition-colors border border-transparent hover:border-brand-primary">
           <div className="flex items-center mb-2">
             <BrainCircuit size={24} className="text-brand-accent mr-3" />
-            <h2 className="text-xl font-semibold text-text-heading">Insights com IA</h2> {/* Usando classes de tema */}
+            <h2 className="text-xl font-semibold text-text-heading">Insights com IA</h2>
           </div>
-          <p className="text-text-muted text-sm">Receba uma análise completa sobre sua performance geral e converse com a IA para tirar dúvidas.</p> {/* Usando classes de tema */}
+          <p className="text-text-muted text-sm">Receba uma análise completa sobre sua performance geral e converse com a IA para tirar dúvidas.</p>
         </button>
-        <button type="button" onClick={() => setActiveTool('reports')} aria-label="Abrir Relatórios Inteligentes" className="w-full text-left bg-bg-card p-6 rounded-lg shadow-lg hover:bg-bg-card/50 cursor-pointer transition-colors border border-transparent hover:border-brand-primary"> {/* Usando classes de tema */}
+        <button type="button" onClick={() => setActiveTool('reports')} aria-label="Abrir Relatórios Inteligentes" className="w-full text-left bg-bg-card p-6 rounded-lg shadow-lg hover:bg-bg-card/50 cursor-pointer transition-colors border border-transparent hover:border-brand-primary">
           <div className="flex items-center mb-2">
             <FileBarChart2 size={24} className="text-brand-accent mr-3" />
-            <h2 className="text-xl font-semibold text-text-heading">Relatórios Inteligentes</h2> {/* Usando classes de tema */}
+            <h2 className="text-xl font-semibold text-text-heading">Relatórios Inteligentes</h2>
           </div>
-          <p className="text-text-muted text-sm">Crie relatórios personalizados com filtros, visualize em gráficos e receba um feedback rápido da IA.</p> {/* Usando classes de tema */}
+          <p className="text-text-muted text-sm">Crie relatórios personalizados com filtros, visualize em gráficos e receba um feedback rápido da IA.</p>
         </button>
-        <button type="button" onClick={() => setActiveTool('periodic')} aria-label="Abrir Análise Periódica" className="w-full text-left bg-bg-card p-6 rounded-lg shadow-lg hover:bg-bg-card/50 cursor-pointer transition-colors border border-transparent hover:border-brand-primary"> {/* Usando classes de tema */}
+        <button type="button" onClick={() => setActiveTool('periodic')} aria-label="Abrir Análise Periódica" className="w-full text-left bg-bg-card p-6 rounded-lg shadow-lg hover:bg-bg-card/50 cursor-pointer transition-colors border border-transparent hover:border-brand-primary">
           <div className="flex items-center mb-2">
             <CalendarDays size={24} className="text-brand-accent mr-3" />
-            <h2 className="text-xl font-semibold text-text-heading">Análise Periódica</h2> {/* Usando classes de tema */}
+            <h2 className="text-xl font-semibold text-text-heading">Análise Periódica</h2>
           </div>
-          <p className="text-text-muted text-sm">Compare seus ganhos, custos e lucros em gráficos semanais, mensais ou anuais.</p> {/* Usando classes de tema */}
+          <p className="text-text-muted text-sm">Compare seus ganhos, custos e lucros em gráficos semanais, mensais ou anuais.</p>
         </button>
-        <button type="button" onClick={() => navigate('/app/settings')} aria-label="Ir para Ajustes" className="w-full text-left bg-bg-card p-6 rounded-lg shadow-lg hover:bg-bg-card/50 cursor-pointer transition-colors border border-transparent hover:border-brand-primary"> {/* Usando classes de tema */}
+        <button type="button" onClick={() => navigate('/app/settings')} aria-label="Ir para Ajustes" className="w-full text-left bg-bg-card p-6 rounded-lg shadow-lg hover:bg-bg-card/50 cursor-pointer transition-colors border border-transparent hover:border-brand-primary">
           <div className="flex items-center mb-2">
             <Calculator size={24} className="text-brand-accent mr-3" />
-            <h2 className="text-xl font-semibold text-text-heading">Custo por KM Preciso</h2> {/* Usando classes de tema */}
+            <h2 className="text-xl font-semibold text-text-heading">Custo por KM Preciso</h2>
           </div>
-          <p className="text-text-muted text-sm">Acesse os Ajustes para usar a calculadora unificada e descobrir seu custo real por KM.</p> {/* Usando classes de tema */}
+          <p className="text-text-muted text-sm">Acesse os Ajustes para usar a calculadora unificada e descobrir seu custo real por KM.</p>
         </button>
       </div>
     </>
@@ -591,7 +591,7 @@ const Premium: React.FC<PremiumProps> = ({ records, settings, isPremium, setIsPr
   const renderInsightsTool = () => (
     <div className="animate-fade-in-up">
       {renderHeader('Insights com IA', <BrainCircuit/>)}
-      <div className="bg-bg-card p-6 rounded-lg shadow-xl"> {/* Usando classes de tema */}
+      <div className="bg-bg-card p-6 rounded-lg shadow-xl">
         <LoadingButton
           loading={isInsightsLoading}
           onClick={handleAnalyze}
@@ -600,9 +600,9 @@ const Premium: React.FC<PremiumProps> = ({ records, settings, isPremium, setIsPr
           ariaLabel="Analisar meus ganhos"
         />
         {analysis && (
-          <div className="mt-6 bg-bg-card/50 p-4 rounded-lg"> {/* Usando classes de tema */}
+          <div className="mt-6 bg-bg-card/50 p-4 rounded-lg">
             <h3 className="font-bold text-lg mb-2 text-brand-primary">Resultado da Análise:</h3>
-            <div className="text-text-muted text-sm leading-relaxed markdown-content"> {/* Usando classes de tema */}
+            <div className="text-text-muted text-sm leading-relaxed markdown-content">
               <ReactMarkdown
                 components={{
                   h1: ({node, ...props}) => <h1 className="text-2xl font-bold text-brand-primary mt-4 mb-2" {...props} />,
@@ -611,10 +611,10 @@ const Premium: React.FC<PremiumProps> = ({ records, settings, isPremium, setIsPr
                   p: ({node, ...props}) => <p className="mb-2" {...props} />,
                   ul: ({node, ...props}) => <ul className="list-disc list-inside ml-4 mb-2 space-y-1" {...props} />,
                   ol: ({node, ...props}) => <ol className="list-decimal list-inside ml-4 mb-2 space-y-1" {...props} />,
-                  li: ({node, ...props}) => <li className="text-text-muted" {...props} />, {/* Usando classes de tema */}
-                  strong: ({node, ...props}) => <strong className="font-bold text-text-default" {...props} />, {/* Usando classes de tema */}
-                  em: ({node, ...props}) => <em className="italic text-text-muted" {...props} />, {/* Usando classes de tema */}
-                  hr: ({node, ...props}) => <hr className="border-border-card my-4" {...props} />, {/* Usando classes de tema */}
+                  li: ({node, ...props}) => <li className="text-text-muted" {...props} />,
+                  strong: ({node, ...props}) => <strong className="font-bold text-text-default" {...props} />,
+                  em: ({node, ...props}) => <em className="italic text-text-muted" {...props} />,
+                  hr: ({node, ...props}) => <hr className="border-border-card my-4" {...props} />,
                 }}
               >
                 {analysis}
@@ -624,15 +624,15 @@ const Premium: React.FC<PremiumProps> = ({ records, settings, isPremium, setIsPr
         )}
       </div>
       {analysis && (
-        <div className="mt-6 bg-bg-card p-4 rounded-lg shadow-xl"> {/* Usando classes de tema */}
+        <div className="mt-6 bg-bg-card p-4 rounded-lg shadow-xl">
           <h3 className="text-lg font-semibold mb-3 text-center text-yellow-400">Converse sobre a Análise</h3>
-          <div className="h-64 overflow-y-auto bg-bg-card/50 rounded-lg p-3 space-y-4 mb-3" aria-live="polite" role="log"> {/* Usando classes de tema */}
+          <div className="h-64 overflow-y-auto bg-bg-card/50 rounded-lg p-3 space-y-4 mb-3" aria-live="polite" role="log">
             {chatHistory.map((msg, index) => (
               <div key={index} className={`flex items-end gap-2 animate-fade-in-up ${msg.role === 'user' ? 'flex-row-reverse' : ''}`}>
                 <div className={`flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center ${msg.role === 'user' ? 'bg-brand-secondary' : 'bg-gray-600'}`}>
                   {msg.role === 'user' ? <User size={18} /> : <Bot size={18} />}
                 </div>
-                <div className={`max-w-xs lg:max-w-md px-3 py-2 rounded-lg text-sm ${msg.role === 'user' ? 'bg-brand-primary text-white' : 'bg-gray-700 text-text-default'}`}> {/* Usando classes de tema */}
+                <div className={`max-w-xs lg:max-w-md px-3 py-2 rounded-lg text-sm ${msg.role === 'user' ? 'bg-brand-primary text-white' : 'bg-gray-700 text-text-default'}`}>
                   {msg.parts[0].text}
                 </div>
               </div>
@@ -642,7 +642,7 @@ const Premium: React.FC<PremiumProps> = ({ records, settings, isPremium, setIsPr
                 <div className="flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center bg-gray-600">
                   <Bot size={18} />
                 </div>
-                <div className="bg-gray-700 text-text-default px-3 py-2 rounded-lg text-sm"> {/* Usando classes de tema */}
+                <div className="bg-gray-700 text-text-default px-3 py-2 rounded-lg text-sm">
                     <Loader2 className="animate-spin w-4 h-4"/>
                 </div>
               </div>
@@ -655,7 +655,7 @@ const Premium: React.FC<PremiumProps> = ({ records, settings, isPremium, setIsPr
               value={chatInput}
               onChange={(e: React.ChangeEvent<HTMLInputElement>) => setChatInput(e.target.value)}
               placeholder="Pergunte algo sobre o relatório..."
-              className="flex-grow bg-bg-card border border-border-card rounded-lg px-4 py-2 text-text-default placeholder-text-muted focus:ring-2 focus:ring-brand-primary focus:outline-none transition" {/* Usando classes de tema */}
+              className="flex-grow bg-bg-card border border-border-card rounded-lg px-4 py-2 text-text-default placeholder-text-muted focus:ring-2 focus:ring-brand-primary focus:outline-none transition"
               disabled={isChatLoading}
               aria-label="Campo de entrada para chat com a IA"
             />
@@ -671,20 +671,20 @@ const Premium: React.FC<PremiumProps> = ({ records, settings, isPremium, setIsPr
   const renderReportsTool = () => (
      <div className="animate-fade-in-up">
         {renderHeader('Relatórios Inteligentes', <FileBarChart2/>)}
-        <div className="bg-bg-card p-6 rounded-lg shadow-xl space-y-4"> {/* Usando classes de tema */}
+        <div className="bg-bg-card p-6 rounded-lg shadow-xl space-y-4">
             <div className="grid grid-cols-2 gap-4">
                 <div>
-                    <label htmlFor="startDate" className="block text-sm font-medium text-text-muted mb-1">Início</label> {/* Usando classes de tema */}
-                    <input type="date" id="startDate" value={reportConfig.startDate} onChange={(e: React.ChangeEvent<HTMLInputElement>) => setReportConfig(p => ({...p, startDate: e.target.value}))} className="w-full bg-bg-card border border-border-card rounded-lg px-3 py-2 text-text-default focus:ring-brand-primary focus:outline-none" aria-label="Data de início do relatório"/> {/* Usando classes de tema */}
+                    <label htmlFor="startDate" className="block text-sm font-medium text-text-muted mb-1">Início</label>
+                    <input type="date" id="startDate" value={reportConfig.startDate} onChange={(e: React.ChangeEvent<HTMLInputElement>) => setReportConfig(p => ({...p, startDate: e.target.value}))} className="w-full bg-bg-card border border-border-card rounded-lg px-3 py-2 text-text-default focus:ring-brand-primary focus:outline-none" aria-label="Data de início do relatório"/>
                 </div>
                 <div>
-                    <label htmlFor="endDate" className="block text-sm font-medium text-text-muted mb-1">Fim</label> {/* Usando classes de tema */}
-                    <input type="date" id="endDate" value={reportConfig.endDate} onChange={(e: React.ChangeEvent<HTMLInputElement>) => setReportConfig(p => ({...p, endDate: e.target.value}))} className="w-full bg-bg-card border border-border-card rounded-lg px-3 py-2 text-text-default focus:ring-brand-primary focus:outline-none" aria-label="Data de fim do relatório"/> {/* Usando classes de tema */}
+                    <label htmlFor="endDate" className="block text-sm font-medium text-text-muted mb-1">Fim</label>
+                    <input type="date" id="endDate" value={reportConfig.endDate} onChange={(e: React.ChangeEvent<HTMLInputElement>) => setReportConfig(p => ({...p, endDate: e.target.value}))} className="w-full bg-bg-card border border-border-card rounded-lg px-3 py-2 text-text-default focus:ring-brand-primary focus:outline-none" aria-label="Data de fim do relatório"/>
                 </div>
             </div>
             <div>
-                 <label htmlFor="metric" className="block text-sm font-medium text-text-muted mb-1">Métrica</label> {/* Usando classes de tema */}
-                 <select id="metric" value={reportConfig.metric} onChange={(e: React.ChangeEvent<HTMLSelectElement>) => setReportConfig(p => ({...p, metric: e.target.value}))} className="w-full bg-bg-card border border-border-card rounded-lg px-3 py-2 text-text-default focus:ring-brand-primary focus:outline-none" aria-label="Métrica do relatório"> {/* Usando classes de tema */}
+                 <label htmlFor="metric" className="block text-sm font-medium text-text-muted mb-1">Métrica</label>
+                 <select id="metric" value={reportConfig.metric} onChange={(e: React.ChangeEvent<HTMLSelectElement>) => setReportConfig(p => ({...p, metric: e.target.value}))} className="w-full bg-bg-card border border-border-card rounded-lg px-3 py-2 text-text-default focus:ring-brand-primary focus:outline-none" aria-label="Métrica do relatório">
                     <option value="netProfit">Lucro Líquido</option>
                     <option value="profitPerKm">Lucro por KM</option>
                     <option value="grossEarnings">Ganhos Brutos</option>
@@ -708,7 +708,7 @@ const Premium: React.FC<PremiumProps> = ({ records, settings, isPremium, setIsPr
         {isReportLoading && <div className="text-center mt-6"><Loader2 className="animate-spin mx-auto w-8 h-8 text-brand-primary" /></div>}
         
         {reportData.length > 0 && !isReportLoading && (
-            <div className="mt-6 bg-bg-card p-4 rounded-lg shadow-xl animate-fade-in-up"> {/* Usando classes de tema */}
+            <div className="mt-6 bg-bg-card p-4 rounded-lg shadow-xl animate-fade-in-up">
                 <h3 className="font-bold text-lg mb-4 text-brand-primary text-center">Resultado do Relatório</h3>
                 <div className="w-full h-64">
                     <ResponsiveContainer>
@@ -726,8 +726,8 @@ const Premium: React.FC<PremiumProps> = ({ records, settings, isPremium, setIsPr
                                 }} 
                             />
                             <Tooltip
-                                contentStyle={{ backgroundColor: 'var(--color-bg-default)', border: '1px solid var(--color-border-card)', color: 'var(--color-text-default)' }} {/* Usando variáveis CSS */}
-                                labelStyle={{ color: 'var(--color-brand-primary)' }} {/* Usando variáveis CSS */}
+                                contentStyle={{ backgroundColor: 'var(--color-bg-default)', border: '1px solid var(--color-border-card)', color: 'var(--color-text-default)' }}
+                                labelStyle={{ color: 'var(--color-brand-primary)' }}
                                 formatter={(value: number) => {
                                     const unit = metricsInfo[reportConfig.metric].unit;
                                     if (unit === 'KM') return `${Number(value).toFixed(1)} KM`;
@@ -745,9 +745,9 @@ const Premium: React.FC<PremiumProps> = ({ records, settings, isPremium, setIsPr
                     <div className="mt-4 bg-gradient-to-r from-brand-primary/20 to-brand-secondary/20 p-4 rounded-lg border border-brand-primary/30">
                         <h4 className="font-semibold text-brand-primary mb-3 text-center">📊 Resumo da Consulta</h4>
                         <div className="grid grid-cols-3 gap-4 text-center">
-                            <div className="bg-bg-card/50 p-3 rounded-lg"> {/* Usando classes de tema */}
-                                <p className="text-xs text-text-muted mb-1">Total</p> {/* Usando classes de tema */}
-                                <p className="font-bold text-text-default"> {/* Usando classes de tema */}
+                            <div className="bg-bg-card/50 p-3 rounded-lg">
+                                <p className="text-xs text-text-muted mb-1">Total</p>
+                                <p className="font-bold text-text-default">
                                     {metricsInfo[reportConfig.metric].unit === 'KM' 
                                         ? `${reportTotals.total.toFixed(1)} KM`
                                         : metricsInfo[reportConfig.metric].unit === 'h'
@@ -756,9 +756,9 @@ const Premium: React.FC<PremiumProps> = ({ records, settings, isPremium, setIsPr
                                     }
                                 </p>
                             </div>
-                            <div className="bg-bg-card/50 p-3 rounded-lg"> {/* Usando classes de tema */}
-                                <p className="text-xs text-text-muted mb-1">Média Diária</p> {/* Usando classes de tema */}
-                                <p className="font-bold text-text-default"> {/* Usando classes de tema */}
+                            <div className="bg-bg-card/50 p-3 rounded-lg">
+                                <p className="text-xs text-text-muted mb-1">Média Diária</p>
+                                <p className="font-bold text-text-default">
                                     {metricsInfo[reportConfig.metric].unit === 'KM' 
                                         ? `${reportTotals.average.toFixed(1)} KM`
                                         : metricsInfo[reportConfig.metric].unit === 'h'
@@ -767,13 +767,13 @@ const Premium: React.FC<PremiumProps> = ({ records, settings, isPremium, setIsPr
                                     }
                                 </p>
                             </div>
-                            <div className="bg-bg-card/50 p-3 rounded-lg"> {/* Usando classes de tema */}
-                                <p className="text-xs text-text-muted mb-1">Período</p> {/* Usando classes de tema */}
-                                <p className="font-bold text-text-default">{reportTotals.days} dias</p> {/* Usando classes de tema */}
+                            <div className="bg-bg-card/50 p-3 rounded-lg">
+                                <p className="text-xs text-text-muted mb-1">Período</p>
+                                <p className="font-bold text-text-default">{reportTotals.days} dias</p>
                             </div>
                         </div>
                         <div className="mt-3 text-center">
-                            <p className="text-xs text-text-muted"> {/* Usando classes de tema */}
+                            <p className="text-xs text-text-muted">
                                 {metricsInfo[reportConfig.metric].label} • {new Date(reportConfig.startDate).toLocaleDateString('pt-BR')} até {new Date(reportConfig.endDate).toLocaleDateString('pt-BR')}
                             </p>
                         </div>
@@ -781,8 +781,8 @@ const Premium: React.FC<PremiumProps> = ({ records, settings, isPremium, setIsPr
                 )}
                 
                 {reportInsight && (
-                    <div className="mt-4 bg-bg-card/50 p-3 rounded-lg"> {/* Usando classes de tema */}
-                         <p className="text-sm text-text-muted text-center">{reportInsight}</p> {/* Usando classes de tema */}
+                    <div className="mt-4 bg-bg-card/50 p-3 rounded-lg">
+                         <p className="text-sm text-text-muted text-center">{reportInsight}</p>
                     </div>
                 )}
             </div>
@@ -793,19 +793,19 @@ const Premium: React.FC<PremiumProps> = ({ records, settings, isPremium, setIsPr
   const renderPeriodicTool = () => {
     const totals = periodicData.find(p => p.key === selectedPeriodKey) || { ganhos: 0, custos: 0, lucroLiquido: 0, kmRodados: 0, totalHoursWorked: 0, ganhosPorHora: 0, lucroLiquidoPorHora: 0 };
 
-    const tooltipContentStyle = { backgroundColor: 'var(--color-bg-default)', border: '1px solid var(--color-border-card)', color: 'var(--color-text-default)' }; {/* Usando variáveis CSS */}
-    const tooltipLabelStyle = { color: 'var(--color-brand-primary)' }; {/* Usando variáveis CSS */}
+    const tooltipContentStyle = { backgroundColor: 'var(--color-bg-default)', border: '1px solid var(--color-border-card)', color: 'var(--color-text-default)' };
+    const tooltipLabelStyle = { color: 'var(--color-brand-primary)' };
 
     return (
         <div className="animate-fade-in-up">
             {renderHeader('Análise Periódica', <CalendarDays/>)}
-            <div className="bg-bg-card p-4 rounded-lg shadow-xl mb-4"> {/* Usando classes de tema */}
-                <div className="flex justify-center bg-bg-card/50 rounded-lg p-1 mb-4"> {/* Usando classes de tema */}
+            <div className="bg-bg-card p-4 rounded-lg shadow-xl mb-4">
+                <div className="flex justify-center bg-bg-card/50 rounded-lg p-1 mb-4">
                     {(['Semanal', 'Mensal', 'Anual'] as const).map(p => {
                         const periodMap: Record<'Semanal' | 'Mensal' | 'Anual', PeriodType> = { Semanal: 'weekly', Mensal: 'monthly', Anual: 'annual' };
                         const value = periodMap[p];
                         return (
-                             <button key={p} onClick={() => setPeriodType(value)} aria-label={`Selecionar análise ${p.toLowerCase()}`} className={`flex-1 py-2 text-sm font-medium rounded-md transition-colors ${periodType === value ? 'bg-brand-primary text-white shadow' : 'text-text-muted hover:bg-gray-600'}`}> {/* Usando classes de tema */}
+                             <button key={p} onClick={() => setPeriodType(value)} aria-label={`Selecionar análise ${p.toLowerCase()}`} className={`flex-1 py-2 text-sm font-medium rounded-md transition-colors ${periodType === value ? 'bg-brand-primary text-white shadow' : 'text-text-muted hover:bg-gray-600'}`}>
                                 {p}
                             </button>
                         )
@@ -819,7 +819,7 @@ const Premium: React.FC<PremiumProps> = ({ records, settings, isPremium, setIsPr
                             id="period-select"
                             value={selectedPeriodKey || ''}
                             onChange={(e) => setSelectedPeriodKey(e.target.value)}
-                            className="w-full bg-bg-card border border-border-card rounded-lg px-3 py-2 text-text-default focus:ring-brand-primary focus:outline-none" {/* Usando classes de tema */}
+                            className="w-full bg-bg-card border border-border-card rounded-lg px-3 py-2 text-text-default focus:ring-brand-primary focus:outline-none"
                         >
                             {availablePeriods.map(p => (
                                 <option key={p.key} value={p.key}>
@@ -832,7 +832,7 @@ const Premium: React.FC<PremiumProps> = ({ records, settings, isPremium, setIsPr
             </div>
 
             {periodicData.length === 0 || !selectedPeriodKey ? (
-                 <div className="text-center text-text-muted mt-10 bg-bg-card p-6 rounded-lg"> {/* Usando classes de tema */}
+                 <div className="text-center text-text-muted mt-10 bg-bg-card p-6 rounded-lg">
                     <BarChart2 size={48} className="mx-auto mb-4" />
                     <h2 className="text-xl font-semibold">Dados Insuficientes</h2>
                     <p className="mt-2">Não há registros suficientes para gerar uma análise {periodType} ou o período selecionado.</p>
@@ -840,15 +840,15 @@ const Premium: React.FC<PremiumProps> = ({ records, settings, isPremium, setIsPr
             ) : (
                 <div>
                     <div className="grid grid-cols-4 gap-2 mb-4 text-center">
-                        <div className="bg-bg-card p-2 rounded-lg"><p className="text-xs text-blue-400">Ganhos</p><p className="font-bold text-sm text-blue-400">{totals.ganhos.toLocaleString('pt-BR', {style: 'currency', currency: 'BRL'})}</p></div> {/* Usando classes de tema */}
-                        <div className="bg-bg-card p-2 rounded-lg"><p className="text-xs text-yellow-400">Custos</p><p className="font-bold text-sm text-yellow-400">{totals.custos.toLocaleString('pt-BR', {style: 'currency', currency: 'BRL'})}</p></div> {/* Usando classes de tema */}
-                        <div className="bg-bg-card p-2 rounded-lg"><p className="text-xs text-green-400">Lucro</p><p className="font-bold text-sm text-green-400">{totals.lucroLiquido.toLocaleString('pt-BR', {style: 'currency', currency: 'BRL'})}</p></div> {/* Usando classes de tema */}
-                        <div className="bg-bg-card p-2 rounded-lg"><p className="text-xs text-purple-400">Horas</p><p className="font-bold text-sm text-purple-400">{totals.totalHoursWorked.toFixed(1)} h</p></div> {/* Usando classes de tema */}
+                        <div className="bg-bg-card p-2 rounded-lg"><p className="text-xs text-blue-400">Ganhos</p><p className="font-bold text-sm text-blue-400">{totals.ganhos.toLocaleString('pt-BR', {style: 'currency', currency: 'BRL'})}</p></div>
+                        <div className="bg-bg-card p-2 rounded-lg"><p className="text-xs text-yellow-400">Custos</p><p className="font-bold text-sm text-yellow-400">{totals.custos.toLocaleString('pt-BR', {style: 'currency', currency: 'BRL'})}</p></div>
+                        <div className="bg-bg-card p-2 rounded-lg"><p className="text-xs text-green-400">Lucro</p><p className="font-bold text-sm text-green-400">{totals.lucroLiquido.toLocaleString('pt-BR', {style: 'currency', currency: 'BRL'})}</p></div>
+                        <div className="bg-bg-card p-2 rounded-lg"><p className="text-xs text-purple-400">Horas</p><p className="font-bold text-sm text-purple-400">{totals.totalHoursWorked.toFixed(1)} h</p></div>
                     </div>
 
                     <div className="space-y-6">
                         {/* Graph 1: Ganhos Brutos vs. Custos Totais (BarChart - Total do Período) */}
-                        <div className="bg-bg-card p-4 rounded-lg shadow-xl"> {/* Usando classes de tema */}
+                        <div className="bg-bg-card p-4 rounded-lg shadow-xl">
                             <h3 className="font-semibold text-base mb-4 text-brand-primary text-center">Ganhos Brutos vs. Custos Totais</h3>
                             <div className="w-full h-60">
                                 <ResponsiveContainer>
@@ -863,15 +863,15 @@ const Premium: React.FC<PremiumProps> = ({ records, settings, isPremium, setIsPr
                                                 <stop offset="95%" stopColor="#f59e0b" stopOpacity={0.3}/>
                                             </linearGradient>
                                         </defs>
-                                        <CartesianGrid strokeDasharray="3 3" stroke="var(--color-border-card)" /> {/* Usando variáveis CSS */}
-                                        <XAxis dataKey="name" stroke="var(--color-text-muted)" fontSize={11} /> {/* Usando variáveis CSS */}
-                                        <YAxis stroke="var(--color-text-muted)" fontSize={11} tickFormatter={(value: number) => `${Number(value).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL'})}`} /> {/* Usando variáveis CSS */}
+                                        <CartesianGrid strokeDasharray="3 3" stroke="var(--color-border-card)" />
+                                        <XAxis dataKey="name" stroke="var(--color-text-muted)" fontSize={11} />
+                                        <YAxis stroke="var(--color-text-muted)" fontSize={11} tickFormatter={(value: number) => `${Number(value).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL'})}`} />
                                         <Tooltip 
                                             contentStyle={tooltipContentStyle}
                                             labelStyle={tooltipLabelStyle}
                                             formatter={(value: number) => `${Number(value).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL'})}`} 
                                         />
-                                        <Legend wrapperStyle={{fontSize: "12px", color: 'var(--color-text-default)'}}/> {/* Usando variáveis CSS */}
+                                        <Legend wrapperStyle={{fontSize: "12px", color: 'var(--color-text-default)'}}/>
                                         <Bar dataKey="ganhos" fill="url(#gradientGanhos)" name="Ganhos" activeBar={false} />
                                         <Bar dataKey="custos" fill="url(#gradientCustos)" name="Custos" activeBar={false} />
                                     </BarChart>
@@ -879,44 +879,44 @@ const Premium: React.FC<PremiumProps> = ({ records, settings, isPremium, setIsPr
                             </div>
                         </div>
                         {/* Graph 2: Evolução do Lucro Líquido (AreaChart) */}
-                        <div className="bg-bg-card p-4 rounded-lg shadow-xl"> {/* Usando classes de tema */}
+                        <div className="bg-bg-card p-4 rounded-lg shadow-xl">
                             <h3 className="font-semibold text-base mb-4 text-brand-primary text-center">Evolução do Lucro Líquido</h3>
                             <div className="w-full h-60">
                                 <ResponsiveContainer>
                                     <AreaChart data={detailedLucroLiquidoData} margin={{ top: 5, right: 5, left: -25, bottom: 5 }}>
                                         <defs>
                                             <linearGradient id="colorLucro" x1="0" y1="0" x2="0" y2="1">
-                                                <stop offset="5%" stopColor="var(--color-brand-primary)" stopOpacity={0.8}/> {/* Usando variáveis CSS */}
-                                                <stop offset="95%" stopColor="var(--color-brand-primary)" stopOpacity={0}/> {/* Usando variáveis CSS */}
+                                                <stop offset="5%" stopColor="var(--color-brand-primary)" stopOpacity={0.8}/>
+                                                <stop offset="95%" stopColor="var(--color-brand-primary)" stopOpacity={0}/>
                                             </linearGradient>
                                             <linearGradient id="colorPrejuizo" x1="0" y1="0" x2="0" y2="1">
                                                 <stop offset="5%" stopColor="#ef4444" stopOpacity={0.8}/>
                                                 <stop offset="95%" stopColor="#ef4444" stopOpacity={0}/>
                                             </linearGradient>
                                         </defs>
-                                        <CartesianGrid strokeDasharray="3 3" stroke="var(--color-border-card)" /> {/* Usando variáveis CSS */}
-                                        <XAxis dataKey="name" stroke="var(--color-text-muted)" fontSize={11} /> {/* Usando variáveis CSS */}
-                                        <YAxis stroke="var(--color-text-muted)" fontSize={11} tickFormatter={(value: number) => `${Number(value).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL'})}`} /> {/* Usando variáveis CSS */}
+                                        <CartesianGrid strokeDasharray="3 3" stroke="var(--color-border-card)" />
+                                        <XAxis dataKey="name" stroke="var(--color-text-muted)" fontSize={11} />
+                                        <YAxis stroke="var(--color-text-muted)" fontSize={11} tickFormatter={(value: number) => `${Number(value).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL'})}`} />
                                         <Tooltip 
                                             contentStyle={tooltipContentStyle}
                                             labelStyle={tooltipLabelStyle}
                                             formatter={(value: number) => `${Number(value).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL'})}`} 
                                         />
                                         <ReferenceLine y={0} stroke="#ef4444" strokeDasharray="3 3" />
-                                        <Area type="monotone" dataKey="value" stroke="var(--color-brand-primary)" fillOpacity={1} fill="url(#colorLucro)" name="Lucro Líquido" /> {/* Usando variáveis CSS */}
+                                        <Area type="monotone" dataKey="value" stroke="var(--color-brand-primary)" fillOpacity={1} fill="url(#colorLucro)" name="Lucro Líquido" />
                                     </AreaChart>
                                 </ResponsiveContainer>
                             </div>
                         </div>
                         {/* Graph 3: Desempenho de Lucro por KM (R$) (LineChart) */}
-                        <div className="bg-bg-card p-4 rounded-lg shadow-xl"> {/* Usando classes de tema */}
+                        <div className="bg-bg-card p-4 rounded-lg shadow-xl">
                             <h3 className="font-semibold text-base mb-4 text-brand-primary text-center">Desempenho de Lucro por KM (R$)</h3>
                             <div className="w-full h-60">
                                 <ResponsiveContainer>
                                     <LineChart data={detailedLucroPorKmData} margin={{ top: 5, right: 5, left: -25, bottom: 5 }}>
-                                        <CartesianGrid strokeDasharray="3 3" stroke="var(--color-border-card)" /> {/* Usando variáveis CSS */}
-                                        <XAxis dataKey="name" stroke="var(--color-text-muted)" fontSize={11} /> {/* Usando variáveis CSS */}
-                                        <YAxis stroke="var(--color-text-muted)" fontSize={11} tickFormatter={(value: number) => `${Number(value).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL'})}`} /> {/* Usando variáveis CSS */}
+                                        <CartesianGrid strokeDasharray="3 3" stroke="var(--color-border-card)" />
+                                        <XAxis dataKey="name" stroke="var(--color-text-muted)" fontSize={11} />
+                                        <YAxis stroke="var(--color-text-muted)" fontSize={11} tickFormatter={(value: number) => `${Number(value).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL'})}`} />
                                         <Tooltip 
                                             contentStyle={tooltipContentStyle}
                                             labelStyle={tooltipLabelStyle}
@@ -929,7 +929,7 @@ const Premium: React.FC<PremiumProps> = ({ records, settings, isPremium, setIsPr
                         </div>
 
                         {/* Graph 4: KM Rodados (AreaChart) */}
-                        <div className="bg-bg-card p-4 rounded-lg shadow-xl"> {/* Usando classes de tema */}
+                        <div className="bg-bg-card p-4 rounded-lg shadow-xl">
                             <h3 className="font-semibold text-base mb-4 text-brand-primary text-center">KM Rodados</h3>
                             <div className="w-full h-60">
                                 <ResponsiveContainer>
@@ -940,9 +940,9 @@ const Premium: React.FC<PremiumProps> = ({ records, settings, isPremium, setIsPr
                                                 <stop offset="95%" stopColor="#06b6d4" stopOpacity={0.3}/>
                                             </linearGradient>
                                         </defs>
-                                        <CartesianGrid strokeDasharray="3 3" stroke="var(--color-border-card)" /> {/* Usando variáveis CSS */}
-                                        <XAxis dataKey="name" stroke="var(--color-text-muted)" fontSize={11} /> {/* Usando variáveis CSS */}
-                                        <YAxis stroke="var(--color-text-muted)" fontSize={11} tickFormatter={(value: number) => `${value} KM`} /> {/* Usando variáveis CSS */}
+                                        <CartesianGrid strokeDasharray="3 3" stroke="var(--color-border-card)" />
+                                        <XAxis dataKey="name" stroke="var(--color-text-muted)" fontSize={11} />
+                                        <YAxis stroke="var(--color-text-muted)" fontSize={11} tickFormatter={(value: number) => `${value} KM`} />
                                         <Tooltip 
                                             contentStyle={tooltipContentStyle}
                                             labelStyle={tooltipLabelStyle}
@@ -955,7 +955,7 @@ const Premium: React.FC<PremiumProps> = ({ records, settings, isPremium, setIsPr
                         </div>
 
                         {/* Graph 5: Total de Horas Trabalhadas (AreaChart) */}
-                        <div className="bg-bg-card p-4 rounded-lg shadow-xl"> {/* Usando classes de tema */}
+                        <div className="bg-bg-card p-4 rounded-lg shadow-xl">
                             <h3 className="font-semibold text-base mb-4 text-brand-primary text-center">Total de Horas Trabalhadas</h3>
                             <div className="w-full h-60">
                                 <ResponsiveContainer>
@@ -966,9 +966,9 @@ const Premium: React.FC<PremiumProps> = ({ records, settings, isPremium, setIsPr
                                                 <stop offset="95%" stopColor="#a855f7" stopOpacity={0.3}/>
                                             </linearGradient>
                                         </defs>
-                                        <CartesianGrid strokeDasharray="3 3" stroke="var(--color-border-card)" /> {/* Usando variáveis CSS */}
-                                        <XAxis dataKey="name" stroke="var(--color-text-muted)" fontSize={11} /> {/* Usando variáveis CSS */}
-                                        <YAxis stroke="var(--color-text-muted)" fontSize={11} tickFormatter={(value: number) => `${value} h`} /> {/* Usando variáveis CSS */}
+                                        <CartesianGrid strokeDasharray="3 3" stroke="var(--color-border-card)" />
+                                        <XAxis dataKey="name" stroke="var(--color-text-muted)" fontSize={11} />
+                                        <YAxis stroke="var(--color-text-muted)" fontSize={11} tickFormatter={(value: number) => `${value} h`} />
                                         <Tooltip 
                                             contentStyle={tooltipContentStyle}
                                             labelStyle={tooltipLabelStyle}
@@ -981,14 +981,14 @@ const Premium: React.FC<PremiumProps> = ({ records, settings, isPremium, setIsPr
                         </div>
 
                         {/* Graph 6: Ganhos por Hora (R$/h) (LineChart) */}
-                        <div className="bg-bg-card p-4 rounded-lg shadow-xl"> {/* Usando classes de tema */}
+                        <div className="bg-bg-card p-4 rounded-lg shadow-xl">
                             <h3 className="font-semibold text-base mb-4 text-brand-primary text-center">Ganhos por Hora (R$/h)</h3>
                             <div className="w-full h-60">
                                 <ResponsiveContainer>
                                     <LineChart data={detailedGanhosPorHoraData} margin={{ top: 5, right: 5, left: -25, bottom: 5 }}>
-                                        <CartesianGrid strokeDasharray="3 3" stroke="var(--color-border-card)" /> {/* Usando variáveis CSS */}
-                                        <XAxis dataKey="name" stroke="var(--color-text-muted)" fontSize={11} /> {/* Usando variáveis CSS */}
-                                        <YAxis stroke="var(--color-text-muted)" fontSize={11} tickFormatter={(value: number) => `R$${value}`} /> {/* Usando variáveis CSS */}
+                                        <CartesianGrid strokeDasharray="3 3" stroke="var(--color-border-card)" />
+                                        <XAxis dataKey="name" stroke="var(--color-text-muted)" fontSize={11} />
+                                        <YAxis stroke="var(--color-text-muted)" fontSize={11} tickFormatter={(value: number) => `R$${value}`} />
                                         <Tooltip 
                                             contentStyle={tooltipContentStyle}
                                             labelStyle={tooltipLabelStyle}
@@ -1001,14 +1001,14 @@ const Premium: React.FC<PremiumProps> = ({ records, settings, isPremium, setIsPr
                         </div>
 
                         {/* Graph 7: Lucro Líquido por Hora (R$/h) (LineChart) */}
-                        <div className="bg-bg-card p-4 rounded-lg shadow-xl"> {/* Usando classes de tema */}
+                        <div className="bg-bg-card p-4 rounded-lg shadow-xl">
                             <h3 className="font-semibold text-base mb-4 text-brand-primary text-center">Lucro Líquido por Hora (R$/h)</h3>
                             <div className="w-full h-60">
                                 <ResponsiveContainer>
                                     <LineChart data={detailedLucroLiquidoPorHoraData} margin={{ top: 5, right: 5, left: -25, bottom: 5 }}>
-                                        <CartesianGrid strokeDasharray="3 3" stroke="var(--color-border-card)" /> {/* Usando variáveis CSS */}
-                                        <XAxis dataKey="name" stroke="var(--color-text-muted)" fontSize={11} /> {/* Usando variáveis CSS */}
-                                        <YAxis stroke="var(--color-text-muted)" fontSize={11} tickFormatter={(value: number) => `R$${value}`} /> {/* Usando variáveis CSS */}
+                                        <CartesianGrid strokeDasharray="3 3" stroke="var(--color-border-card)" />
+                                        <XAxis dataKey="name" stroke="var(--color-text-muted)" fontSize={11} />
+                                        <YAxis stroke="var(--color-text-muted)" fontSize={11} tickFormatter={(value: number) => `R$${value}`} />
                                         <Tooltip 
                                             contentStyle={tooltipContentStyle}
                                             labelStyle={tooltipLabelStyle}
@@ -1021,14 +1021,14 @@ const Premium: React.FC<PremiumProps> = ({ records, settings, isPremium, setIsPr
                         </div>
 
                         {/* Graph 8: R$/KM Bruto (LineChart) */}
-                        <div className="bg-bg-card p-4 rounded-lg shadow-xl"> {/* Usando classes de tema */}
+                        <div className="bg-bg-card p-4 rounded-lg shadow-xl">
                             <h3 className="font-semibold text-base mb-4 text-brand-primary text-center">R$/KM Bruto</h3>
                             <div className="w-full h-60">
                                 <ResponsiveContainer>
                                     <LineChart data={detailedGanhosPorKmBrutoData} margin={{ top: 5, right: 5, left: -25, bottom: 5 }}>
-                                        <CartesianGrid strokeDasharray="3 3" stroke="var(--color-border-card)" /> {/* Usando variáveis CSS */}
-                                        <XAxis dataKey="name" stroke="var(--color-text-muted)" fontSize={11} /> {/* Usando variáveis CSS */}
-                                        <YAxis stroke="var(--color-text-muted)" fontSize={11} tickFormatter={(value: number) => `${Number(value).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL'})}`} /> {/* Usando variáveis CSS */}
+                                        <CartesianGrid strokeDasharray="3 3" stroke="var(--color-border-card)" />
+                                        <XAxis dataKey="name" stroke="var(--color-text-muted)" fontSize={11} />
+                                        <YAxis stroke="var(--color-text-muted)" fontSize={11} tickFormatter={(value: number) => `${Number(value).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL'})}`} />
                                         <Tooltip 
                                             contentStyle={tooltipContentStyle}
                                             labelStyle={tooltipLabelStyle}
@@ -1041,14 +1041,14 @@ const Premium: React.FC<PremiumProps> = ({ records, settings, isPremium, setIsPr
                         </div>
 
                         {/* Graph 9: Margem de Lucro (%) (LineChart) */}
-                        <div className="bg-bg-card p-4 rounded-lg shadow-xl"> {/* Usando classes de tema */}
+                        <div className="bg-bg-card p-4 rounded-lg shadow-xl">
                             <h3 className="font-semibold text-base mb-4 text-brand-primary text-center">Margem de Lucro (%)</h3>
                             <div className="w-full h-60">
                                 <ResponsiveContainer>
                                     <LineChart data={detailedMargemLucroData} margin={{ top: 5, right: 5, left: -25, bottom: 5 }}>
-                                        <CartesianGrid strokeDasharray="3 3" stroke="var(--color-border-card)" /> {/* Usando variáveis CSS */}
-                                        <XAxis dataKey="name" stroke="var(--color-text-muted)" fontSize={11} /> {/* Usando variáveis CSS */}
-                                        <YAxis stroke="var(--color-text-muted)" fontSize={11} tickFormatter={(value: number) => `${value}%`} /> {/* Usando variáveis CSS */}
+                                        <CartesianGrid strokeDasharray="3 3" stroke="var(--color-border-card)" />
+                                        <XAxis dataKey="name" stroke="var(--color-text-muted)" fontSize={11} />
+                                        <YAxis stroke="var(--color-text-muted)" fontSize={11} tickFormatter={(value: number) => `${value}%`} />
                                         <Tooltip 
                                             contentStyle={tooltipContentStyle}
                                             labelStyle={tooltipLabelStyle}
@@ -1067,37 +1067,37 @@ const Premium: React.FC<PremiumProps> = ({ records, settings, isPremium, setIsPr
   };
 
   return (
-    <div className="max-w-md mx-auto text-text-default"> {/* Usando classes de tema */}
+    <div className="max-w-md mx-auto text-text-default">
       {!isPremium ? (
         <div className="text-center">
             <h1 className="text-3xl font-bold text-center mb-4 text-yellow-400 flex items-center justify-center">
                 <Crown className="mr-2" /> GanhosPro Premium
             </h1>
-            <p className="text-center text-text-muted mb-8"> {/* Usando classes de tema */}
+            <p className="text-center text-text-muted mb-8">
                 Desbloqueie todo o potencial do app e maximize seus lucros.
             </p>
-            <div className="bg-bg-card p-6 rounded-lg shadow-xl mb-6"> {/* Usando classes de tema */}
+            <div className="bg-bg-card p-6 rounded-lg shadow-xl mb-6">
                 <h2 className="text-xl font-semibold mb-4 text-brand-primary">Vantagens Premium</h2>
-                <ul className="space-y-3 text-text-muted text-left"> {/* Usando classes de tema */}
+                <ul className="space-y-3 text-text-muted text-left">
                 <li className="flex items-start">
                     <BarChart2 className="w-5 h-5 mr-3 mt-1 text-green-400 flex-shrink-0" />
-                    <span><span className="font-semibold text-text-default">Registros Ilimitados:</span> Salve seu histórico sem se preocupar com limites.</span> {/* Usando classes de tema */}
+                    <span><span className="font-semibold text-text-default">Registros Ilimitados:</span> Salve seu histórico sem se preocupar com limites.</span>
                 </li>
                  <li className="flex items-start">
                     <CalendarDays className="w-5 h-5 mr-3 mt-1 text-yellow-400 flex-shrink-0" />
-                    <span><span className="font-semibold text-text-default">Análise Periódica:</span> Compare seus resultados por semana, mês ou ano.</span> {/* Usando classes de tema */}
+                    <span><span className="font-semibold text-text-default">Análise Periódica:</span> Compare seus resultados por semana, mês ou ano.</span>
                 </li>
                 <li className="flex items-start">
                     <BrainCircuit className="w-5 h-5 mr-3 mt-1 text-yellow-400 flex-shrink-0" />
-                    <span><span className="font-semibold text-text-default">Insights com IA:</span> Receba análises completas e converse com a IA.</span> {/* Usando classes de tema */}
+                    <span><span className="font-semibold text-text-default">Insights com IA:</span> Receba análises completas e converse com a IA.</span>
                 </li>
                 <li className="flex items-start">
                     <FileBarChart2 className="w-5 h-5 mr-3 mt-1 text-yellow-400 flex-shrink-0" />
-                    <span><span className="font-semibold text-text-default">Relatórios Inteligentes:</span> Crie relatórios personalizados com gráficos.</span> {/* Usando classes de tema */}
+                    <span><span className="font-semibold text-text-default">Relatórios Inteligentes:</span> Crie relatórios personalizados com gráficos.</span>
                 </li>
                 <li className="flex items-start">
                     <Calculator className="w-5 h-5 mr-3 mt-1 text-yellow-400 flex-shrink-0" />
-                    <span><span className="font-semibold text-text-default">Custo por KM Preciso:</span> Calcule seu custo real com base em todos os seus gastos.</span> {/* Usando classes de tema */}
+                    <span><span className="font-semibold text-text-default">Custo por KM Preciso:</span> Calcule seu custo real com base em todos os seus gastos.</span>
                 </li>
                 </ul>
             </div>
