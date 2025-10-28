@@ -1,4 +1,5 @@
 import { LocalNotifications } from '@capacitor/local-notifications';
+import { Capacitor } from '@capacitor/core'; // Importa Capacitor
 import toast from 'react-hot-toast';
 
 const NOTIFICATION_ID = 100; // ID fixo para o lembrete diário
@@ -9,8 +10,16 @@ interface NotificationScheduleOptions {
   time: string; // Formato "HH:MM"
 }
 
+// Verifica se estamos na plataforma web
+const isWebPlatform = Capacitor.getPlatform() === 'web';
+
 export const notificationService = {
   async requestPermissions(): Promise<boolean> {
+    if (isWebPlatform) {
+      console.warn('Notificações locais não são totalmente suportadas na pré-visualização web.');
+      toast.info('Notificações locais não são totalmente suportadas na pré-visualização web.');
+      return false;
+    }
     try {
       const result = await LocalNotifications.requestPermissions();
       if (result.display === 'granted') {
@@ -27,6 +36,10 @@ export const notificationService = {
   },
 
   async scheduleDailyReminder(options: NotificationScheduleOptions): Promise<void> {
+    if (isWebPlatform) {
+      console.warn('Agendamento de lembrete diário não suportado na pré-visualização web.');
+      return;
+    }
     await LocalNotifications.cancel({ identifiers: [{ id: NOTIFICATION_ID }] });
 
     if (!options.enabled) {
@@ -78,6 +91,10 @@ export const notificationService = {
   },
 
   async cancelDailyReminder(): Promise<void> {
+    if (isWebPlatform) {
+      console.warn('Cancelamento de lembrete diário não suportado na pré-visualização web.');
+      return;
+    }
     try {
       await LocalNotifications.cancel({ identifiers: [{ id: NOTIFICATION_ID }] });
       console.log('Lembrete diário cancelado.');
@@ -87,6 +104,10 @@ export const notificationService = {
   },
 
   async clearNotificationForToday(): Promise<void> {
+    if (isWebPlatform) {
+      console.warn('Limpeza de notificação de hoje não suportada na pré-visualização web.');
+      return;
+    }
     try {
       const pending = await LocalNotifications.getPending();
       // Adiciona verificação para pending e pending.notifications
@@ -141,6 +162,9 @@ export const notificationService = {
   },
 
   async getScheduledReminderTime(): Promise<string | null> {
+    if (isWebPlatform) {
+      return null; // Não há lembrete agendado na web
+    }
     try {
       const pending = await LocalNotifications.getPending();
       // Adiciona verificação para pending e pending.notifications
