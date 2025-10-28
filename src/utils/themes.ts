@@ -68,6 +68,40 @@ export const themes: Theme[] = [
       '--color-text-heading': '#e0e7ff', // indigo-100
     },
   },
+  {
+    name: 'dark-blue-gray',
+    displayName: 'Azul Escuro Moderno',
+    colors: {
+      '--color-brand-primary': '#60a5fa', // blue-400
+      '--color-brand-secondary': '#3b82f6', // blue-500
+      '--color-brand-dark': '#111827', // gray-900
+      '--color-brand-light': '#e0e7ff', // indigo-100
+      '--color-brand-accent': '#fcd34d', // amber-300
+      '--color-text-default': '#e0e7ff', // indigo-100
+      '--color-bg-default': '#111827', // gray-900
+      '--color-bg-card': '#1f2937', // gray-800
+      '--color-border-card': '#374151', // gray-700
+      '--color-text-muted': '#9ca3af', // gray-400
+      '--color-text-heading': '#f9fafb', // white
+    },
+  },
+  {
+    name: 'light-green-gray',
+    displayName: 'Verde Claro Suave',
+    colors: {
+      '--color-brand-primary': '#4ade80', // green-400
+      '--color-brand-secondary': '#22c55e', // green-500
+      '--color-brand-dark': '#dcfce7', // green-100
+      '--color-brand-light': '#1f2937', // gray-800
+      '--color-brand-accent': '#f87171', // red-400
+      '--color-text-default': '#1f2937', // gray-800
+      '--color-bg-default': '#f0fdf4', // green-50
+      '--color-bg-card': '#ffffff', // white
+      '--color-border-card': '#d1fae5', // green-200
+      '--color-text-muted': '#6b7280', // gray-500
+      '--color-text-heading': '#1f2937', // gray-800
+    },
+  },
 ];
 
 export const defaultThemeName = themes[0].name;
