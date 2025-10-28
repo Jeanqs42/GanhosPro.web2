@@ -611,10 +611,10 @@ const Premium: React.FC<PremiumProps> = ({ records, settings, isPremium, setIsPr
                   p: ({node, ...props}) => <p className="mb-2" {...props} />,
                   ul: ({node, ...props}) => <ul className="list-disc list-inside ml-4 mb-2 space-y-1" {...props} />,
                   ol: ({node, ...props}) => <ol className="list-decimal list-inside ml-4 mb-2 space-y-1" {...props} />,
-                  li: ({node, ...props}) => <li className="text-text-muted" {...props} />, {/* Usando classes de tema */}
-                  strong: ({node, ...props}) => <strong className="font-bold text-text-default" {...props} />, {/* Usando classes de tema */}
-                  em: ({node, ...props}) => <em className="italic text-text-muted" {...props} />, {/* Usando classes de tema */}
-                  hr: ({node, ...props}) => <hr className="border-border-card my-4" {...props} />, {/* Usando classes de tema */}
+                  li: ({node, ...props}) => <li className="text-text-muted" {...props} />,
+                  strong: ({node, ...props}) => <strong className="font-bold text-text-default" {...props} />,
+                  em: ({node, ...props}) => <em className="italic text-text-muted" {...props} />,
+                  hr: ({node, ...props}) => <hr className="border-border-card my-4" {...props} />,
                 }}
               >
                 {analysis}
@@ -793,8 +793,8 @@ const Premium: React.FC<PremiumProps> = ({ records, settings, isPremium, setIsPr
   const renderPeriodicTool = () => {
     const totals = periodicData.find(p => p.key === selectedPeriodKey) || { ganhos: 0, custos: 0, lucroLiquido: 0, kmRodados: 0, totalHoursWorked: 0, ganhosPorHora: 0, lucroLiquidoPorHora: 0 };
 
-    const tooltipContentStyle = { backgroundColor: 'var(--color-bg-default)', border: '1px solid var(--color-border-card)', color: 'var(--color-text-default)' }; {/* Usando variáveis CSS */}
-    const tooltipLabelStyle = { color: 'var(--color-brand-primary)' }; {/* Usando variáveis CSS */}
+    const tooltipContentStyle = { backgroundColor: 'var(--color-bg-default)', border: '1px solid var(--color-border-card)', color: 'var(--color-text-default)' };
+    const tooltipLabelStyle = { color: 'var(--color-brand-primary)' };
 
     return (
         <div className="animate-fade-in-up">
