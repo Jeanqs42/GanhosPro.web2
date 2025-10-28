@@ -3,7 +3,7 @@ import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import AppLayout from './components/AppLayout';
 import LandingPage from './src/pages/LandingPage';
 import { useLocalStorage } from './hooks/useLocalStorage';
-import { useTheme } from './hooks/useTheme'; // Importar useTheme
+import { useTheme } from './src/hooks/useTheme'; // Caminho corrigido
 
 const App: React.FC = () => {
   // Inicializa o hook de tema para aplicar as variáveis CSS globalmente
