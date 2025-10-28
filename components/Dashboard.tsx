@@ -5,16 +5,7 @@ import { DollarSign, Route, Clock, Wrench, Calculator, Save, Info, Edit, ArrowLe
 import { RunRecord, AppSettings, CalculationResult } from '../types';
 import { safeRandomUUID } from '../utils/uuid';
 
-interface DashboardProps {
-  records: RunRecord[];
-  settings: AppSettings;
-  addOrUpdateRecord: (record: RunRecord) => Promise<boolean>;
-  deleteRecord: (id: string) => Promise<boolean>;
-  isPremium: boolean;
-}
-
-// Memoized InputField component
-const InputField = React.memo<{ 
+interface InputFieldProps {
   icon: React.ReactNode; 
   label: string; 
   id: string; 
@@ -22,8 +13,11 @@ const InputField = React.memo<{
   onChange: (e: React.ChangeEvent<HTMLInputElement>) => void; 
   placeholder: string; 
   type?: string; 
-  isHighlighted?: boolean 
-}>(({ icon, label, id, value, onChange, placeholder, type = "number", isHighlighted = false }) => (
+  isHighlighted?: boolean;
+}
+
+// Memoized InputField component
+const InputField = React.memo<InputFieldProps>(({ icon, label, id, value, onChange, placeholder, type = "number", isHighlighted = false }) => (
     <div className="mb-4">
         <label htmlFor={id} className={`flex items-center text-sm font-medium text-text-muted mb-2 ${isHighlighted ? 'font-bold text-lg text-text-default' : ''}`}> {/* Usando classes de tema */}
             {icon}
